@@ -15,11 +15,12 @@ func (a *S3APICalls) add(apicall *S3APICall) {
 	a.Data = append(a.Data, apicall)
 }
 
+// TODO: need to write transformer.
 type S3APICall struct {
 	Type   string `json:"a"`
 	Method string `json:"m"`
 	Path   string `json:"p"`
-	Data   string `json:"-"`
+	Data   string `json:"d"`
 }
 
 func (a *S3APICall) String() string {
