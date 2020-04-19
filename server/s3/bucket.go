@@ -1,5 +1,7 @@
 package s3
 
+import "path"
+
 type S3Bucket struct {
 	Name      string
 	Resources []*S3Resource
@@ -12,29 +14,35 @@ func NewS3Bucket(name string) *S3Bucket {
 func (s3B *S3Bucket) add(resource *S3Resource) {
 
 	if len(resource.ParentDirs) == 0 {
+		// will be adding/replacing in this resource array at this currentPath.
+		for index, eResource := range s3B.Resources {
+			if eResource.Name == resource.Name {
+				s3B.Resources[index] = resource
+				return
+			}
+		}
 		s3B.Resources = append(s3B.Resources, resource)
 		return
 	}
 
-	resource.UpdatePath()
+	dirToFind := resource.ParentDirs[0]
 
-	for _, existingResource := range s3B.Resources {
-		if existingResource.CurrentPath == resource.CurrentPath {
-			existingResource.Add(resource)
+	// pass resource on to Dir resource.
+	for index, eResource := range s3B.Resources {
+		if eResource.Name == dirToFind && eResource.Type == "Directory" {
+			resource.traversePath()
+			s3B.Resources[index].add(resource)
 			return
 		}
 	}
 
-	// brand new resource which may need flattening.
-	dirs := generateNestedDirResource(resource)
-	s3B.Resources = append(s3B.Resources, dirs)
+	// add Empty Dir.
+	s3B.Resources = append(s3B.Resources, &S3Resource{
+		Name:       dirToFind,
+		Type:       "Directory",
+		BucketName: resource.BucketName,
+		Path:       path.Join(resource.CurrentPath, dirToFind),
+	})
 
-}
-
-func generateNestedDirResource(resource *S3Resource) *S3Resource {
-	parentDir := EmptyDir(resource)
-	if len(parentDir.ParentDirs) != 0 {
-		return generateNestedDirResource(parentDir)
-	}
-	return parentDir
+	s3B.add(resource)
 }

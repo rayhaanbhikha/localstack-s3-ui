@@ -2,6 +2,7 @@ package s3
 
 import (
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/rayhaanbhikha/localstack-s3-ui/api"
@@ -14,7 +15,8 @@ type S3Resource struct {
 	Type        string
 	ParentDirs  []string
 	Resources   []*S3Resource
-	ActualPath  string
+	Path        string
+	CurrentDir  string
 	CurrentPath string
 	Data        string
 }
@@ -25,35 +27,56 @@ func (r *S3Resource) String() string {
 		Name: %s
 		Type: %s
 		ParentDirs: %v
-		ActualPath: %s
+		Path: %s
+		CurrentDir: %s
 		CurrentPath: %s
-	`, r.BucketName, r.Name, r.Type, r.ParentDirs, r.ActualPath, r.CurrentPath)
+	`, r.BucketName, r.Name, r.Type, r.ParentDirs, r.Path, r.CurrentDir, r.CurrentPath)
 }
 
-func (r *S3Resource) UpdatePath() {
+func (r *S3Resource) traversePath() {
 	r.CurrentPath += "/" + r.ParentDirs[0]
+	r.CurrentDir = r.ParentDirs[0]
 	if len(r.ParentDirs) > 1 {
 		r.ParentDirs = r.ParentDirs[1:]
+	} else {
+		r.ParentDirs = nil
 	}
 }
 
-func (r *S3Resource) Add(resource *S3Resource) {
-	resource.UpdatePath()
+func (r *S3Resource) add(resource *S3Resource) {
+	fmt.Println("Passed on: ", resource)
 
-	for _, existingResource := range r.Resources {
-		switch {
-		case existingResource.Name == resource.Name:
-			existingResource.Data = resource.Data
-			return
-		case existingResource.CurrentPath == resource.CurrentPath:
-			existingResource.Add(resource)
+	if len(resource.ParentDirs) == 0 {
+		// will be adding/replacing in this resource array at this currentPath.
+		for index, eResource := range r.Resources {
+			if eResource.Name == resource.Name {
+				r.Resources[index] = resource
+				return
+			}
+		}
+		r.Resources = append(r.Resources, resource)
+		return
+	}
+
+	dirToFind := resource.ParentDirs[0]
+
+	// pass resource on to Dir resource.
+	for index, eResource := range r.Resources {
+		if eResource.Name == dirToFind && eResource.Type == "Directory" {
+			resource.traversePath()
+			r.Resources[index].add(resource)
 			return
 		}
 	}
 
-	// brand new resource which may need flattening.
-	dirs := generateNestedDirResource(resource)
-	r.Resources = append(r.Resources, dirs)
+	r.Resources = append(r.Resources, &S3Resource{
+		Name:       dirToFind,
+		Type:       "Directory",
+		BucketName: resource.BucketName,
+		Path:       path.Join(resource.CurrentPath, dirToFind),
+	})
+
+	r.add(resource)
 }
 
 func NewS3Resource(a *api.ApiRequest) *S3Resource {
@@ -68,30 +91,8 @@ func NewS3Resource(a *api.ApiRequest) *S3Resource {
 		Name:        path[n-1],
 		Type:        "File",
 		ParentDirs:  path[1 : n-1],
-		ActualPath:  a.Path,
+		Path:        a.Path,
 		CurrentPath: "/" + path[0],
 		Data:        a.Data,
-	}
-}
-
-func EmptyDir(resource *S3Resource) *S3Resource {
-	splitFn := func(c rune) bool {
-		return c == '/'
-	}
-	path := strings.FieldsFunc(resource.ActualPath, splitFn)
-	pathLen := len(path)
-	parentDirLen := len(resource.ParentDirs)
-
-	currentPath := "/" + strings.Join(path[:pathLen-1], "/")
-	return &S3Resource{
-		BucketName:  resource.BucketName,
-		Name:        resource.ParentDirs[parentDirLen-1],
-		ActualPath:  currentPath,
-		CurrentPath: currentPath,
-		ParentDirs:  resource.ParentDirs[:parentDirLen-1],
-		Type:        "Directory",
-		Resources: []*S3Resource{
-			resource,
-		},
 	}
 }

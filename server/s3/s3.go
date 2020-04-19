@@ -36,5 +36,7 @@ func (s3 S3) Add(a *api.ApiRequest) {
 		return
 	}
 
+	// TODO: need to check if "d" is empty or not. represents a delete file
+	// TODO: need to consider type of method. i.e. DELETE || PUT
 	s3[bucketName].add(NewS3Resource(a))
 }
