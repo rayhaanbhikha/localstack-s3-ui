@@ -13,7 +13,7 @@ type S3Resource struct {
 	Type       string
 	Path       []string
 	ActualPath string
-	Resources  []*S3Resources
+	Resources  []*S3Resource
 	Data       string
 }
 

@@ -3,10 +3,15 @@ package s3
 import "fmt"
 
 type S3Bucket struct {
-	resources []*S3Resource
+	Name      string
+	Resources []*S3Resource
 }
 
-func (r *S3Resource) add(resource *S3Resource) {
+func NewS3Bucket(resource *S3Resource) *S3Bucket {
+	return &S3Bucket{Name: resource.Bucket, Resources: make([]*S3Resource, 0)}
+}
+
+func (s3B *S3Bucket) add(resource *S3Resource) {
 	resourceName := resource.Path[0]
 
 	// for _, existingResource := range s3Bucket
