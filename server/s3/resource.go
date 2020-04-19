@@ -38,14 +38,12 @@ func (r *S3Resource) UpdatePath() {
 }
 
 func (r *S3Resource) Add(resource *S3Resource) {
-	fmt.Println(resource)
 	resource.UpdatePath()
 
 	for _, existingResource := range r.Resources {
 		fmt.Println(existingResource.CurrentPath, resource.CurrentPath)
 		if existingResource.CurrentPath == resource.CurrentPath {
 			existingResource.Add(resource)
-			fmt.Println("nested resource: ", resource)
 			return
 		}
 	}

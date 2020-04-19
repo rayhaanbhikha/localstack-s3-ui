@@ -1,7 +1,5 @@
 package s3
 
-import "fmt"
-
 type S3Bucket struct {
 	Name      string
 	Resources []*S3Resource
@@ -18,14 +16,11 @@ func (s3B *S3Bucket) add(resource *S3Resource) {
 		return
 	}
 
-	fmt.Println(resource)
 	resource.UpdatePath()
 
 	for _, existingResource := range s3B.Resources {
-		fmt.Println(existingResource.CurrentPath, resource.CurrentPath)
 		if existingResource.CurrentPath == resource.CurrentPath {
 			existingResource.Add(resource)
-			fmt.Println("nested resource: ", resource)
 			return
 		}
 	}
