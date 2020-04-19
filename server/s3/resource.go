@@ -41,8 +41,11 @@ func (r *S3Resource) Add(resource *S3Resource) {
 	resource.UpdatePath()
 
 	for _, existingResource := range r.Resources {
-		fmt.Println(existingResource.CurrentPath, resource.CurrentPath)
-		if existingResource.CurrentPath == resource.CurrentPath {
+		switch {
+		case existingResource.Name == resource.Name:
+			existingResource.Data = resource.Data
+			return
+		case existingResource.CurrentPath == resource.CurrentPath:
 			existingResource.Add(resource)
 			return
 		}
