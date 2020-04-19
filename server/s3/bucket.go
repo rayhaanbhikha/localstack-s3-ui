@@ -13,7 +13,7 @@ func NewS3Bucket(name string) *S3Bucket {
 
 func (s3B *S3Bucket) add(resource *S3Resource) {
 
-	if len(resource.ParentDirs) == 0 {
+	if len(resource.parentDirs) == 0 {
 		// will be adding/replacing in this resource array at this currentPath.
 		for index, eResource := range s3B.Resources {
 			if eResource.Name == resource.Name {
@@ -25,7 +25,7 @@ func (s3B *S3Bucket) add(resource *S3Resource) {
 		return
 	}
 
-	dirToFind := resource.ParentDirs[0]
+	dirToFind := resource.parentDirs[0]
 
 	// pass resource on to Dir resource.
 	for index, eResource := range s3B.Resources {
@@ -41,7 +41,7 @@ func (s3B *S3Bucket) add(resource *S3Resource) {
 		Name:       dirToFind,
 		Type:       "Directory",
 		BucketName: resource.BucketName,
-		Path:       path.Join(resource.CurrentPath, dirToFind),
+		Path:       path.Join(resource.currentPath, dirToFind),
 	})
 
 	s3B.add(resource)

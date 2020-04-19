@@ -13,11 +13,10 @@ type S3Resource struct {
 	BucketName  string
 	Name        string
 	Type        string
-	ParentDirs  []string
+	parentDirs  []string
 	Resources   []*S3Resource
 	Path        string
-	CurrentDir  string
-	CurrentPath string
+	currentPath string
 	Data        string
 }
 
@@ -26,27 +25,24 @@ func (r *S3Resource) String() string {
 		Bucket: %s
 		Name: %s
 		Type: %s
-		ParentDirs: %v
+		parentDirs: %v
 		Path: %s
-		CurrentDir: %s
 		CurrentPath: %s
-	`, r.BucketName, r.Name, r.Type, r.ParentDirs, r.Path, r.CurrentDir, r.CurrentPath)
+	`, r.BucketName, r.Name, r.Type, r.parentDirs, r.Path, r.currentPath)
 }
 
 func (r *S3Resource) traversePath() {
-	r.CurrentPath += "/" + r.ParentDirs[0]
-	r.CurrentDir = r.ParentDirs[0]
-	if len(r.ParentDirs) > 1 {
-		r.ParentDirs = r.ParentDirs[1:]
+	r.currentPath += "/" + r.parentDirs[0]
+	if len(r.parentDirs) > 1 {
+		r.parentDirs = r.parentDirs[1:]
 	} else {
-		r.ParentDirs = nil
+		r.parentDirs = nil
 	}
 }
 
 func (r *S3Resource) add(resource *S3Resource) {
-	fmt.Println("Passed on: ", resource)
 
-	if len(resource.ParentDirs) == 0 {
+	if len(resource.parentDirs) == 0 {
 		// will be adding/replacing in this resource array at this currentPath.
 		for index, eResource := range r.Resources {
 			if eResource.Name == resource.Name {
@@ -58,7 +54,7 @@ func (r *S3Resource) add(resource *S3Resource) {
 		return
 	}
 
-	dirToFind := resource.ParentDirs[0]
+	dirToFind := resource.parentDirs[0]
 
 	// pass resource on to Dir resource.
 	for index, eResource := range r.Resources {
@@ -73,7 +69,7 @@ func (r *S3Resource) add(resource *S3Resource) {
 		Name:       dirToFind,
 		Type:       "Directory",
 		BucketName: resource.BucketName,
-		Path:       path.Join(resource.CurrentPath, dirToFind),
+		Path:       path.Join(resource.currentPath, dirToFind),
 	})
 
 	r.add(resource)
@@ -90,9 +86,9 @@ func NewS3Resource(a *api.ApiRequest) *S3Resource {
 		BucketName:  path[0],
 		Name:        path[n-1],
 		Type:        "File",
-		ParentDirs:  path[1 : n-1],
+		parentDirs:  path[1 : n-1],
 		Path:        a.Path,
-		CurrentPath: "/" + path[0],
+		currentPath: "/" + path[0],
 		Data:        a.Data,
 	}
 }
