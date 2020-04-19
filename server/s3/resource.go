@@ -9,25 +9,32 @@ import (
 
 type S3Resource struct {
 	// TODO: add metadata property.
-	Bucket     string
-	Type       string
-	Path       []string
-	ActualPath string
-	Resources  []*S3Resource
-	Data       string
+	BucketName  string
+	Name        string
+	Type        string
+	ParentDirs  []string
+	Resources   []*S3Resource
+	ActualPath  string
+	CurrentPath string
+	Data        string
 }
 
 func (r *S3Resource) String() string {
 	return fmt.Sprintf(`
 		Bucket: %s
+		Name: %s
 		Type: %s
-		Path: %v
+		ParentDirs: %v
 		ActualPath: %s
-	`, r.Bucket, r.Type, r.Path, r.ActualPath)
+		CurrentPath: %s
+	`, r.BucketName, r.Name, r.Type, r.ParentDirs, r.ActualPath, r.CurrentPath)
 }
 
-func (r *S3Resource) UpdatePath(path []string) {
-	r.Path = path
+func (r *S3Resource) UpdatePath() {
+	r.CurrentPath += "/" + r.ParentDirs[0]
+	if len(r.ParentDirs) > 1 {
+		r.ParentDirs = r.ParentDirs[1:]
+	}
 }
 
 func NewS3Resource(a *api.ApiRequest) *S3Resource {
@@ -35,17 +42,37 @@ func NewS3Resource(a *api.ApiRequest) *S3Resource {
 		return c == '/'
 	}
 	path := strings.FieldsFunc(a.Path, splitFn)
-
-	resourceType := "Resource"
-	if len(path) == 1 {
-		resourceType = "Bucket"
-	}
+	n := len(path)
 
 	return &S3Resource{
-		Bucket:     path[0],
-		Type:       resourceType,
-		Path:       path[1:],
-		ActualPath: a.Path,
-		Data:       a.Data,
+		BucketName:  path[0],
+		Name:        path[n-1],
+		Type:        "File",
+		ParentDirs:  path[1 : n-1],
+		ActualPath:  a.Path,
+		CurrentPath: "/" + path[0],
+		Data:        a.Data,
+	}
+}
+
+func EmptyDir(resource *S3Resource) *S3Resource {
+	splitFn := func(c rune) bool {
+		return c == '/'
+	}
+	path := strings.FieldsFunc(resource.ActualPath, splitFn)
+	pathLen := len(path)
+	parentDirLen := len(resource.ParentDirs)
+
+	currentPath := "/" + strings.Join(path[:pathLen-1], "/")
+	return &S3Resource{
+		BucketName:  resource.BucketName,
+		Name:        resource.ParentDirs[parentDirLen-1],
+		ActualPath:  currentPath,
+		CurrentPath: currentPath,
+		ParentDirs:  resource.ParentDirs[:parentDirLen-1],
+		Type:        "Directory",
+		Resources: []*S3Resource{
+			resource,
+		},
 	}
 }

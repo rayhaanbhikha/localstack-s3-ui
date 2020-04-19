@@ -2,35 +2,39 @@ package s3
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/rayhaanbhikha/localstack-s3-ui/api"
 )
 
-type S3 struct {
-	Buckets []*S3Bucket `json:"buckets"`
+type S3 map[string]*S3Bucket
+
+func New() S3 {
+	return make(S3)
 }
 
-func New() *S3 {
-	return &S3{}
-}
-
-func (s3 *S3) Json() []byte {
-	data, err := json.Marshal(s3)
+func (s3 S3) Json() []byte {
+	// FIXME: remove indentation
+	data, err := json.MarshalIndent(s3, "", "  ")
 	if err != nil {
 		panic(err)
 	}
 	return data
 }
 
-func (s3 *S3) Add(a *api.ApiRequest) {
-	resource := NewS3Resource(a)
-
-	for index, bucket := range s3.Buckets {
-		if bucket.Name == resource.Bucket {
-			s3.Buckets[index].add(resource)
-			return
-		}
+func (s3 S3) Add(a *api.ApiRequest) {
+	splitFn := func(c rune) bool {
+		return c == '/'
 	}
-	s3.Buckets = append(s3.Buckets, NewS3Bucket(resource))
+	path := strings.FieldsFunc(a.Path, splitFn)
 
+	bucketName := path[0]
+	if len(path) == 1 {
+		if _, ok := s3[bucketName]; !ok {
+			s3[bucketName] = NewS3Bucket(bucketName)
+		}
+		return
+	}
+
+	s3[bucketName].add(NewS3Resource(a))
 }

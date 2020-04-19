@@ -7,23 +7,38 @@ type S3Bucket struct {
 	Resources []*S3Resource
 }
 
-func NewS3Bucket(resource *S3Resource) *S3Bucket {
-	return &S3Bucket{Name: resource.Bucket, Resources: make([]*S3Resource, 0)}
+func NewS3Bucket(name string) *S3Bucket {
+	return &S3Bucket{Name: name, Resources: make([]*S3Resource, 0)}
 }
 
 func (s3B *S3Bucket) add(resource *S3Resource) {
-	resourceName := resource.Path[0]
 
-	// for _, existingResource := range s3Bucket
+	if len(resource.ParentDirs) == 0 {
+		s3B.Resources = append(s3B.Resources, resource)
+		return
+	}
 
-	// foundResource, ok := s3Bucket[resourceName]
-	// if !ok {
-	// 	resource.UpdatePath(resource.Path[1:])
-	// 	s3Bucket[resourceName] = resource
-	// 	if len(resource.Path) != 0 {
-	// 		resource
-	// 	}
-	// }
+	fmt.Println(resource)
+	resource.UpdatePath()
 
-	fmt.Println(resourceName, resource.Path[1:])
+	for _, existingResource := range s3B.Resources {
+		fmt.Println(existingResource.CurrentPath, resource.CurrentPath)
+		if existingResource.CurrentPath == resource.CurrentPath {
+			// existingResource.add()
+			fmt.Println("nested resource: ", resource)
+			// return
+		}
+	}
+
+	// brand new resource which may need flattening.
+	s3B.Resources = append(s3B.Resources, generateNestedDirResource(resource))
+
+}
+
+func generateNestedDirResource(resource *S3Resource) *S3Resource {
+	parentDir := EmptyDir(resource)
+	if len(parentDir.ParentDirs) != 0 {
+		return generateNestedDirResource(parentDir)
+	}
+	return parentDir
 }
