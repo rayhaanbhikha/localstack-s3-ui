@@ -24,14 +24,15 @@ func (s3B *S3Bucket) add(resource *S3Resource) {
 	for _, existingResource := range s3B.Resources {
 		fmt.Println(existingResource.CurrentPath, resource.CurrentPath)
 		if existingResource.CurrentPath == resource.CurrentPath {
-			// existingResource.add()
+			existingResource.Add(resource)
 			fmt.Println("nested resource: ", resource)
-			// return
+			return
 		}
 	}
 
 	// brand new resource which may need flattening.
-	s3B.Resources = append(s3B.Resources, generateNestedDirResource(resource))
+	dirs := generateNestedDirResource(resource)
+	s3B.Resources = append(s3B.Resources, dirs)
 
 }
 

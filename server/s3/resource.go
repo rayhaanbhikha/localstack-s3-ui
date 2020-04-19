@@ -37,6 +37,24 @@ func (r *S3Resource) UpdatePath() {
 	}
 }
 
+func (r *S3Resource) Add(resource *S3Resource) {
+	fmt.Println(resource)
+	resource.UpdatePath()
+
+	for _, existingResource := range r.Resources {
+		fmt.Println(existingResource.CurrentPath, resource.CurrentPath)
+		if existingResource.CurrentPath == resource.CurrentPath {
+			existingResource.Add(resource)
+			fmt.Println("nested resource: ", resource)
+			return
+		}
+	}
+
+	// brand new resource which may need flattening.
+	dirs := generateNestedDirResource(resource)
+	r.Resources = append(r.Resources, dirs)
+}
+
 func NewS3Resource(a *api.ApiRequest) *S3Resource {
 	splitFn := func(c rune) bool {
 		return c == '/'
