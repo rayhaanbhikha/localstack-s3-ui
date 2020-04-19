@@ -40,3 +40,23 @@ func (s3 S3) Add(a *api.ApiRequest) {
 	// TODO: need to consider type of method. i.e. DELETE || PUT
 	s3[bucketName].add(NewS3Resource(a))
 }
+
+func (s3 S3) Delete(a *api.ApiRequest) {
+	splitFn := func(c rune) bool {
+		return c == '/'
+	}
+	path := strings.FieldsFunc(a.Path, splitFn)
+
+	bucketName := path[0]
+
+	// NOTE: we assume bucket already exists.
+	// TODO: could do a check later.
+	// TODO: could be deleting just the bucket.
+
+	if len(path) == 1 {
+		delete(s3, bucketName)
+		return
+	}
+
+	s3[bucketName].delete(NewS3Resource(a))
+}

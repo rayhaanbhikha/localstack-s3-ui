@@ -75,6 +75,31 @@ func (r *S3Resource) add(resource *S3Resource) {
 	r.add(resource)
 }
 
+func (r *S3Resource) delete(resource *S3Resource) {
+	fmt.Println("Passed on: ", resource)
+
+	if len(resource.parentDirs) == 0 {
+		// delete at this level.
+		for index, eResource := range r.Resources {
+			if eResource.Name == resource.Name {
+				r.Resources = updateResource(index, r.Resources)
+				return
+			}
+		}
+	}
+
+	dirToFind := resource.parentDirs[0]
+
+	// pass resource on to Dir resource.
+	for index, eResource := range r.Resources {
+		if eResource.Name == dirToFind && eResource.Type == "Directory" {
+			resource.traversePath()
+			r.Resources[index].delete(resource)
+			return
+		}
+	}
+}
+
 func NewS3Resource(a *api.ApiRequest) *S3Resource {
 	splitFn := func(c rune) bool {
 		return c == '/'
@@ -90,5 +115,17 @@ func NewS3Resource(a *api.ApiRequest) *S3Resource {
 		Path:        a.Path,
 		currentPath: "/" + path[0],
 		Data:        a.Data,
+	}
+}
+
+func updateResource(index int, resource []*S3Resource) []*S3Resource {
+	rLen := len(resource)
+	switch {
+	case index == 0:
+		return resource[1:]
+	case index == rLen-1:
+		return resource[:index]
+	default:
+		return append(resource[:index], resource[index+1:]...)
 	}
 }

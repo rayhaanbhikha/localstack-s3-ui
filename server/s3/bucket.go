@@ -1,6 +1,8 @@
 package s3
 
-import "path"
+import (
+	"path"
+)
 
 type S3Bucket struct {
 	Name      string
@@ -45,4 +47,27 @@ func (s3B *S3Bucket) add(resource *S3Resource) {
 	})
 
 	s3B.add(resource)
+}
+
+func (s3B *S3Bucket) delete(resource *S3Resource) {
+	if len(resource.parentDirs) == 0 {
+		// delete at this level.
+		for index, eResource := range s3B.Resources {
+			if eResource.Name == resource.Name {
+				s3B.Resources = updateResource(index, s3B.Resources)
+				return
+			}
+		}
+	}
+
+	dirToFind := resource.parentDirs[0]
+
+	// pass resource on to Dir resource.
+	for index, eResource := range s3B.Resources {
+		if eResource.Name == dirToFind && eResource.Type == "Directory" {
+			resource.traversePath()
+			s3B.Resources[index].delete(resource)
+			return
+		}
+	}
 }
