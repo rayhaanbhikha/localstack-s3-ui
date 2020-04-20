@@ -2,7 +2,6 @@ package s3
 
 import (
 	"fmt"
-	"path"
 	"strings"
 
 	"github.com/rayhaanbhikha/localstack-s3-ui/api"
@@ -40,39 +39,8 @@ func (r *S3Resource) traversePath() {
 	}
 }
 
-func (r *S3Resource) add(resource *S3Resource) {
-
-	if len(resource.parentDirs) == 0 {
-		// will be adding/replacing in this resource array at this currentPath.
-		for index, eResource := range r.Resources {
-			if eResource.Name == resource.Name {
-				r.Resources[index] = resource
-				return
-			}
-		}
-		r.Resources = append(r.Resources, resource)
-		return
-	}
-
-	dirToFind := resource.parentDirs[0]
-
-	// pass resource on to Dir resource.
-	for index, eResource := range r.Resources {
-		if eResource.Name == dirToFind && eResource.Type == "Directory" {
-			resource.traversePath()
-			r.Resources[index].add(resource)
-			return
-		}
-	}
-
-	r.Resources = append(r.Resources, &S3Resource{
-		Name:       dirToFind,
-		Type:       "Directory",
-		BucketName: resource.BucketName,
-		Path:       path.Join(resource.currentPath, dirToFind),
-	})
-
-	r.add(resource)
+func (r *S3Resource) Add(resource *S3Resource) {
+	r.Resources = addResource(r.Resources, resource)
 }
 
 func NewS3Resource(a *api.ApiRequest) *S3Resource {
