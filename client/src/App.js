@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { S3Context } from './context'
+import { S3Provider } from './context'
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
 import mockData from './mock-data.json'
 import { Bucket } from './pages'
@@ -13,14 +13,14 @@ function App() {
   // }, [])
 
   return (
-    <S3Context.Provider value={data}>
+    <S3Provider value={data}>
       <BrowserRouter>
         <Switch>
           <Route exact path="/s3" component={Bucket} />
           <Redirect to="/s3" />
         </Switch>
       </BrowserRouter>
-    </S3Context.Provider>
+    </S3Provider>
   );
 }
 

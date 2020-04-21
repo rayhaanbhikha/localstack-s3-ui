@@ -31,7 +31,7 @@ table {
   width: 100%;
 }
 
-.table-headings {
+thead {
   border-top: 0.1px solid #c5cbce;
   border-bottom: 0.1px solid #c5cbce;
   background: #fafafa;
@@ -45,6 +45,6 @@ td {
   padding: 15px 20px;
 }
 
-.table-rows {
+tbody {
   background: white;
 }
