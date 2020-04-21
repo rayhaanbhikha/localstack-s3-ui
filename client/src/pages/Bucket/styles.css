@@ -1,0 +1,20 @@
+.bucket-page {
+  background: white;
+}
+.header-section {
+  background: #f2f3f3;
+}
+
+.table-body {
+  background: white;
+  height: 100%;
+}
+
+.icon {
+    height: 1rem;
+    margin-right: 10px;
+}
+
+.resource {
+    display: flex;
+}

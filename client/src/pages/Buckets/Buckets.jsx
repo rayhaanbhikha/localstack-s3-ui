@@ -15,12 +15,7 @@ const BucketRow = ({ bucketName }) => <tr>
 
 export const Buckets = () => {
     const data = useContext(S3Context)
-    const [bucketNames, setBucketName] = useState([]);
-
-    useEffect(() => {
-        const bucketNames = Object.entries(data).map(([bucketName]) => bucketName)
-        setBucketName(bucketNames)
-    }, [])
+    const bucketNames = Object.entries(data).map(([bucketName]) => bucketName)
 
     return (
         <div className="buckets-table">
