@@ -1,38 +1,50 @@
-
 .buckets-table {
-    background: #fafafa;
-    margin: 0 auto;
-    width: 75%;
-    box-shadow: 0px 1px 1px 1px #8e999d;
+  margin: 0 auto;
+  width: 75%;
+  box-shadow: 0px 1px 1px 1px #8e999d;
 }
 
 .table-head-container {
-    
+  background: #fafafa;
 }
 
 .table-text {
-    display: inline-block;
-    margin: 20px;
+  display: inline-block;
+  margin: 20px;
 }
 
 .table-bucket-text {
-    font-size: larger;
-    font-weight: 700;
-    font-family: sans-serif;
+  font-size: larger;
+  font-weight: 700;
+  font-family: sans-serif;
 }
 
 .table-bucket-nums {
-    font-size: larger;
-    font-weight: 400;
-    font-family: sans-serif;
-    color: #8e999d;
+  font-size: larger;
+  font-weight: 400;
+  font-family: sans-serif;
+  color: #8e999d;
+}
+
+table {
+  background: white;
+  width: 100%;
 }
 
 .table-headings {
-    border-top: 0.1px solid #c5cbce;
-    display: flex;
+  border-top: 0.1px solid #c5cbce;
+  border-bottom: 0.1px solid #c5cbce;
+  background: #fafafa;
+  display: flex;
 }
 
-.table-heading-text {
-    margin: 20px;
+th,
+td {
+  min-width: 100px;
+  text-align: start;
+  padding: 15px 20px;
+}
+
+.table-rows {
+  background: white;
 }

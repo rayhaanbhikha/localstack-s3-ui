@@ -8,10 +8,25 @@ export const Bucket = () => {
                 <div class="table-text">
                     <strong className="table-bucket-text">Buckets</strong>&nbsp;&nbsp;<strong className="table-bucket-nums">()</strong>
                 </div>
-                <div className="table-headings">
-                    <div className="table-heading-text">Name</div>
-                </div>
             </div>
+            <table>
+                <div className="table-headings">
+                    <tr className="table-column-heading">
+                        <th className="table-column-heading-text">Name</th>
+                    </tr>
+                </div>
+                <div className="table-rows">
+                    <tr>
+                        <td>Some bucket</td>
+                    </tr>
+                    <tr>
+                        <td>Some bucket</td>
+                    </tr>
+                    <tr>
+                        <td>Some bucket</td>
+                    </tr>
+                </div>
+            </table>
         </div>
     )
 }
