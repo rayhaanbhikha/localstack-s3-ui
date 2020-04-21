@@ -1,0 +1,38 @@
+
+.buckets-table {
+    background: #fafafa;
+    margin: 0 auto;
+    width: 75%;
+    box-shadow: 0px 1px 1px 1px #8e999d;
+}
+
+.table-head-container {
+    
+}
+
+.table-text {
+    display: inline-block;
+    margin: 20px;
+}
+
+.table-bucket-text {
+    font-size: larger;
+    font-weight: 700;
+    font-family: sans-serif;
+}
+
+.table-bucket-nums {
+    font-size: larger;
+    font-weight: 400;
+    font-family: sans-serif;
+    color: #8e999d;
+}
+
+.table-headings {
+    border-top: 0.1px solid #c5cbce;
+    display: flex;
+}
+
+.table-heading-text {
+    margin: 20px;
+}
