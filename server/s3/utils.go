@@ -1,5 +1,7 @@
 package s3
 
+import "path"
+
 func addResource(resources []*S3Resource, resource *S3Resource) []*S3Resource {
 	if len(resource.parentDirs) == 0 {
 		// will be adding/replacing in this resource array at this currentPath.

@@ -9,14 +9,14 @@ import (
 
 type S3Resource struct {
 	// TODO: add metadata property.
-	BucketName  string
-	Name        string
-	Type        string
-	parentDirs  []string
-	Resources   []*S3Resource
-	Path        string
-	currentPath string
-	Data        string
+	BucketName  string        `json:"bucketName"`
+	Name        string        `json:"name"`
+	Type        string        `json:"type"`
+	parentDirs  []string      `json:"-"`
+	Resources   []*S3Resource `json:"resources"`
+	Path        string        `json:"path"`
+	currentPath string        `json:"-"`
+	Data        string        `json:"data"`
 }
 
 func (r *S3Resource) String() string {
