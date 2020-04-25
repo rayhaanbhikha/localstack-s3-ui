@@ -5,6 +5,8 @@ import { S3Context } from '../../context'
 
 import './styles.css'
 
+// const BreadCrums
+
 
 const Component = ({ match }) => {
 
@@ -13,7 +15,7 @@ const Component = ({ match }) => {
     const bucketResources = data[bucketName].Resources;
     const initState = {
         resources: bucketResources,
-        breadcums: [bucketName]
+        breadcrums: [bucketName]
     }
     const [state, setState] = useState(initState)
 
@@ -21,6 +23,9 @@ const Component = ({ match }) => {
         <div className="table-head-container">
             <div className="table-text">
                 <strong className="table-bucket-text">{bucketName}</strong>
+            </div>
+            <div className="breadcrums">
+
             </div>
         </div>
         <table>

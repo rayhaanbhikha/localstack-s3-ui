@@ -10,7 +10,7 @@ export const ResourceRow = ({ resource, setState }) => {
       setState(prevState => ({
         ...prevState,
         resources: resource.resources,
-        breadcums: [...prevState.breadcums, resource.name]
+        breadcrums: [...prevState.breadcrums, resource.name]
       }))
     }}>
       <div className="resource">
