@@ -7,6 +7,7 @@ import './styles.css'
 export const ResourceRow = ({ resource, setState }) => {
   return <tr>
     <td onClick={() => {
+      if (resource.type === "File") return
       setState(prevState => ({
         ...prevState,
         resources: resource.resources,

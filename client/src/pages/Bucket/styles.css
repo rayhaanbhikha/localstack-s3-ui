@@ -9,3 +9,9 @@
   background: white;
   height: 100%;
 }
+
+.breadcrums {
+  align-items: center;
+  margin: 20px 0;
+  display: flex;
+}
