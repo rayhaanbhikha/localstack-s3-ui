@@ -5,15 +5,55 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/rayhaanbhikha/localstack-s3-ui/db"
 )
 
 func main() {
+	db, err := db.Init("./s3-orig.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Conn.Close()
 
+	res, err := db.SetUp()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res.LastInsertId())
+
+	res, err = db.AddBucket("static-resources")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res.LastInsertId())
+	res, err = db.AddBucket("index-cache")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res.LastInsertId())
+	res, err = db.AddBucket("some-other-bucket")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res.LastInsertId())
+
+	res, err = db.AddResource("some-datum")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res.LastInsertId())
+
+	res, err = db.AddResource("some-datu")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res.LastInsertId())
 	// http.HandleFunc("/data", dataHandler)
-	http.HandleFunc("/echo", echoHandler)
+	// http.HandleFunc("/echo", echoHandler)
 
-	log.Printf("About to listen on 8080. Go to https://127.0.0.1:8080/")
-	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
+	// log.Printf("About to listen on 8080. Go to https://127.0.0.1:8080/")
+	// log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
 }
 
 type echoReq struct {
