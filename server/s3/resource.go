@@ -39,11 +39,7 @@ func (r *S3Resource) traversePath() {
 	}
 }
 
-func (r *S3Resource) Add(resource *S3Resource) {
-	r.Resources = addResource(r.Resources, resource)
-}
-
-func NewS3Resource(a *api.ApiRequest) *S3Resource {
+func NewS3Resource(a *api.Request) *S3Resource {
 	splitFn := func(c rune) bool {
 		return c == '/'
 	}

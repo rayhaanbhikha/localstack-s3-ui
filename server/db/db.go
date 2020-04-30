@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	// sqllite db driver.
 	_ "github.com/mattn/go-sqlite3"
@@ -14,8 +15,13 @@ type DB struct {
 }
 
 // Init create connection with db
-func Init(fileName string) (*DB, error) {
-	// os.Remove(fileName)
+func Init(fileName string, reset bool) (*DB, error) {
+	if reset {
+		err := os.Remove(fileName)
+		if err != nil {
+			return nil, err
+		}
+	}
 	DSN := fmt.Sprintf("%s?_foreign_keys=true", fileName)
 	fmt.Println(DSN)
 	db, err := sql.Open("sqlite3", DSN)

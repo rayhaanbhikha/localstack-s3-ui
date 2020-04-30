@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	db, err := db.Init("./s3-orig.db")
+	db, err := db.Init("./s3-orig.db", false)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -21,6 +21,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	seed(db)
 
 	// http.HandleFunc("/data", dataHandler)
 	// http.HandleFunc("/echo", echoHandler)
