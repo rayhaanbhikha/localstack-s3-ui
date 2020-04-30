@@ -16,39 +16,12 @@ func main() {
 	}
 	defer db.Conn.Close()
 
-	res, err := db.SetUp()
+	// create tables
+	_, err = db.SetUp()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(res.LastInsertId())
 
-	res, err = db.AddBucket("static-resources")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(res.LastInsertId())
-	res, err = db.AddBucket("index-cache")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(res.LastInsertId())
-	res, err = db.AddBucket("some-other-bucket")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(res.LastInsertId())
-
-	res, err = db.AddResource("some-datum")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(res.LastInsertId())
-
-	res, err = db.AddResource("some-datu")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(res.LastInsertId())
 	// http.HandleFunc("/data", dataHandler)
 	// http.HandleFunc("/echo", echoHandler)
 
