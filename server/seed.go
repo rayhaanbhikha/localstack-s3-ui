@@ -2,37 +2,53 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"log"
 
-	"github.com/rayhaanbhikha/localstack-s3-ui/api"
 	"github.com/rayhaanbhikha/localstack-s3-ui/db"
+	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
 
 func seed(db *db.DB) error {
 
 	// parse file.
-	apiRequests, err := api.Parse("./recorded_api_calls.json")
+	s3Resources, err := s3.Parse("./recorded_api_calls.json")
 	if err != nil {
 		return err
 	}
 
-	for _, apiRequest := range apiRequests {
+	for _, s3Resource := range s3Resources {
 
-		splitFn := func(c rune) bool {
-			return c == '/'
-		}
-		path := strings.FieldsFunc(apiRequest.Path, splitFn)
-
-		if len(path) == 1 {
-			res, err := db.AddBucket(path[0])
-			if err != nil {
-				return err
+		if s3Resource.Type == "Bucket" {
+			switch s3Resource.Method {
+			case "PUT":
+				_, err := db.AddBucket(s3Resource.BucketName)
+				if err != nil {
+					log.Fatal(err)
+				}
+			case "DELETE":
+				_, err := db.DeleteBucket(s3Resource.BucketName)
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
-			fmt.Println(res.LastInsertId())
+		} else {
+			fmt.Println(s3Resource)
+			switch s3Resource.Method {
+			case "PUT":
+				_, err := db.AddResource(s3Resource)
+				if err != nil {
+					log.Fatal(err)
+				}
+			case "DELETE":
+				_, err := db.DeleteResource(s3Resource)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
 		}
-		// fmt.Println(apiRequest)
-	}
 
+		// fmt.Println(s3Resource)
+	}
 
 	return nil
 }

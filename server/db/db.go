@@ -48,21 +48,25 @@ func (db *DB) SetUp() (sql.Result, error) {
 	defer stmt.Close()
 
 	res, err := stmt.Exec()
+	if err != nil {
+		return nil, err
+	}
 
-	fmt.Println(res)
+	fmt.Println(res.RowsAffected())
 
 	// create resource table
 	sqlStatement = `
 		CREATE TABLE IF NOT EXISTS resource(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			path TEXT UNIQUE NOT NULL,
+			parent_path TEXT NOT NULL,
 			name TEXT NOT NULL,
 			typeof TEXT NOT NULL,
 			data BLOB,
 			headers BLOB,
 			bucket_name TEXT NOT NULL,
 			FOREIGN KEY (bucket_name) REFERENCES bucket(name) ON DELETE CASCADE,
-			CHECK(typeof = "file" OR typeof = "directory")
+			CHECK(typeof = "File" OR typeof = "Directory")
 		);
 		`
 
