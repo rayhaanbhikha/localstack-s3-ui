@@ -32,7 +32,7 @@ func Parse(filePath string) ([]*S3Resource, error) {
 
 		// if api request type is s3.
 		if genRequest.Type == "s3" {
-			resources = append(resources, NewS3Resource(genRequest))
+			resources = append(resources, newS3Resource(genRequest))
 		}
 	}
 	return resources, nil

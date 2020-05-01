@@ -30,16 +30,7 @@ func (r *S3Resource) String() string {
 	`, r.BucketName, r.Name, r.Type, r.parentDirs, r.Path, r.currentPath)
 }
 
-func (r *S3Resource) traversePath() {
-	r.currentPath += "/" + r.parentDirs[0]
-	if len(r.parentDirs) > 1 {
-		r.parentDirs = r.parentDirs[1:]
-	} else {
-		r.parentDirs = nil
-	}
-}
-
-func NewS3Resource(genRequest *GenRequest) *S3Resource {
+func newS3Resource(genRequest *GenRequest) *S3Resource {
 	splitFn := func(c rune) bool {
 		return c == '/'
 	}
