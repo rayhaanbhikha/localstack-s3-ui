@@ -9,7 +9,7 @@ func M() {
 		log.Fatal(err)
 	}
 
-	rootNode := &S3Node{Name: "Root", Path: "/", Type: "Root"}
+	rootNode := &S3Node{Name: "Root", Path: "/", Type: "Root", children: make(map[string]*S3Node)}
 
 	for _, s3Request := range s3Requests {
 		// fmt.Println(s3Resource)

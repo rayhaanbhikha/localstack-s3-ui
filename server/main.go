@@ -1,28 +1,28 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
 
-	"github.com/rayhaanbhikha/localstack-s3-ui/db"
+	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
 
 func main() {
-	db, err := db.Init("./s3-orig.db", false)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Conn.Close()
 
-	// create tables
-	_, err = db.SetUp()
-	if err != nil {
-		log.Fatal(err)
-	}
+	fmt.Println("hello")
+	s3.M()
+	// db, err := db.Init("./s3-orig.db", false)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer db.Conn.Close()
 
-	seed(db)
+	// // create tables
+	// _, err = db.SetUp()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// seed()
 
 	// http.HandleFunc("/data", dataHandler)
 	// http.HandleFunc("/echo", echoHandler)
@@ -31,21 +31,17 @@ func main() {
 	// log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
 }
 
-type echoReq struct {
-	Data string `json:"data"`
-}
+// func echoHandler(w http.ResponseWriter, r *http.Request) {
+// 	echo := &echoReq{}
+// 	b := make([]byte, 0)
+// 	r.Body.Read(b)
+// 	// check if error on close.
+// 	r.Body.Close()
+// 	fmt.Println(string(b))
+// 	json.Unmarshal(b, echo)
 
-func echoHandler(w http.ResponseWriter, r *http.Request) {
-	echo := &echoReq{}
-	b := make([]byte, 0)
-	r.Body.Read(b)
-	// check if error on close.
-	r.Body.Close()
-	fmt.Println(string(b))
-	json.Unmarshal(b, echo)
-
-	fmt.Fprintf(w, " %s %s %s", "hello world", r.Method, echo.Data)
-}
+// 	fmt.Fprintf(w, " %s %s %s", "hello world", r.Method, echo.Data)
+// }
 
 // func dataHandler(w http.ResponseWriter, r *http.Request) {
 // 	w.Header().Set("Access-Control-Allow-Origin", "*")

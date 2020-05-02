@@ -6,24 +6,26 @@ import (
 	"os"
 )
 
-// TODO: child nodes should be a map. as we need to assert if nodes already exist.
-
 type S3Node struct {
 	Name       string
 	BucketName string
 	Path       string
 	Type       string
 	Data       string
-	children   []*S3Node
+	children   map[string]*S3Node
 }
 
-func (n *S3Node) Print() {
-	fmt.Println(fmt.Sprintf(`
+func (n *S3Node) String() string {
+	return fmt.Sprintf(`
 	Name: %s
 	Type: %s
 	Path: %s
 	Data: %s
-`, n.Name, n.Type, n.Path, n.Data))
+`, n.Name, n.Type, n.Path, n.Data)
+}
+
+func (n *S3Node) Print() {
+	fmt.Println(n)
 	if len(n.children) > 0 {
 		for _, childNode := range n.children {
 			childNode.Print()
@@ -46,49 +48,60 @@ func (n *S3Node) getNode(path string) (*S3Node, bool) {
 
 func (n *S3Node) addNode(path []string, data string) {
 	if n.Name == "Root" && len(path) == 1 {
-		// adding bucket node.
-		// TODO: need to check if it exists.
-		bucketNode := &S3Node{
-			Name:       path[0],
-			BucketName: path[0],
-			Path:       path[0],
-			Type:       "Bucket",
+		bucketName := path[0]
+		if _, ok := n.children[bucketName]; !ok {
+			bucketNode := &S3Node{
+				Name:       bucketName,
+				BucketName: bucketName,
+				Path:       bucketName,
+				Type:       "Bucket",
+				children:   make(map[string]*S3Node),
+			}
+			n.children[bucketName] = bucketNode
 		}
-		n.children = append(n.children, bucketNode)
 		return
 	}
 
 	if n.Name != "Root" && len(path) == 1 {
-		fileNode := &S3Node{
-			BucketName: n.BucketName,
-			Name:       path[0],
-			Type:       "File",
-			Path:       fmt.Sprintf("%s/%s", n.Path, path[0]),
-			Data:       data,
+
+		fileName := path[0]
+		if _, ok := n.children[fileName]; !ok {
+			fileNode := &S3Node{
+				BucketName: n.BucketName,
+				Name:       fileName,
+				Type:       "File",
+				Path:       fmt.Sprintf("%s/%s", n.Path, fileName),
+				Data:       data,
+				children:   make(map[string]*S3Node),
+			}
+			n.children[fileName] = fileNode
+		} else {
+			// just update the data.
+			n.children[fileName].Data = data
 		}
-		n.children = append(n.children, fileNode)
 		return
 	}
 
-	for i := 0; i < len(n.children); i++ {
-		name := n.children[i].Name
-		if name == path[0] {
+	for childPath, childNode := range n.children {
+		if childNode.Name == path[0] {
 			path = path[1:]
-			n.children[i].addNode(path, data)
+			n.children[childPath].addNode(path, data)
 			return
 		}
 	}
 
 	// definitely a nested resource.
 	// create file node.
+	dirName := path[0]
 	dirNode := &S3Node{
-		Name: path[0],
-		Path: fmt.Sprintf("%s/%s", n.Path, path[0]),
-		Type: "Directory",
+		Name:     dirName,
+		Path:     fmt.Sprintf("%s/%s", n.Path, dirName),
+		Type:     "Directory",
+		children: make(map[string]*S3Node),
 	}
+	n.children[dirName] = dirNode
 	path = path[1:]
 	dirNode.addNode(path, data)
-	n.children = append(n.children, dirNode)
 }
 
 func (n *S3Node) GetNodesAtPath(path string) {
