@@ -4,21 +4,22 @@ import (
 	"encoding/json"
 )
 
-func Init(filePath string) (*S3Node, error) {
+func RootNode() *S3Node {
+	return &S3Node{Name: "Root", Path: "/", Type: "Root", children: make(map[string]*S3Node)}
+}
+
+func (n *S3Node) Init(filePath string) error {
 	s3Requests, err := Parse(filePath)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	rootNode := &S3Node{Name: "Root", Path: "/", Type: "Root", children: make(map[string]*S3Node)}
 
 	for _, s3Request := range s3Requests {
-		// fmt.Println(s3Resource)
 		if s3Request.Method == "PUT" {
-			rootNode.addNode(s3Request.actualPath, s3Request.Data)
+			n.addNode(s3Request.actualPath, s3Request.Data)
 		}
 	}
-	return rootNode, nil
+	return nil
 }
 
 func (n *S3Node) Json(resourcePath string) ([]byte, error) {
