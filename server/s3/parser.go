@@ -5,12 +5,15 @@ import (
 	"log"
 )
 
+// TODO: Child nodes could be a map with the path as a key
+
 type S3Node struct {
-	Name     string `json:"name"`
-	Path     string
-	Type     string
-	Data     string
-	children []*S3Node
+	Name       string `json:"name"`
+	BucketName string
+	Path       string
+	Type       string
+	Data       string
+	children   []*S3Node
 }
 
 func (n *S3Node) Print() {
@@ -27,25 +30,39 @@ func (n *S3Node) Print() {
 }
 
 func (n *S3Node) addNode(resource *S3Resource) {
-	resource.Path = resource.Path[1:]
-	if len(resource.Path) == 1 {
-		// will add at this level
-		// will always be a file.
+	if n.Name == "Root" && len(resource.Path) == 1 {
+		// adding bucket node.
+		// TODO: need to check if it exists.
+		bucketNode := &S3Node{
+			Name:       resource.Name,
+			BucketName: resource.Name,
+			Path:       resource.Path[0],
+			Type:       "Bucket",
+		}
+		n.children = append(n.children, bucketNode)
+		return
+	}
+
+	if n.Name != "Root" && len(resource.Path) == 1 {
 		fileNode := &S3Node{
-			Name: resource.Name,
-			Path: fmt.Sprintf("%s/%s", n.Path, resource.Path[0]),
-			Type: "File",
+			BucketName: n.BucketName,
+			Name:       resource.Path[0],
+			Type:       "File",
+			Path:       fmt.Sprintf("%s/%s", n.Path, resource.Path[0]),
 		}
 		n.children = append(n.children, fileNode)
 		return
 	}
+
 	for i := 0; i < len(n.children); i++ {
 		name := n.children[i].Name
 		if name == resource.Path[0] {
+			resource.Path = resource.Path[1:]
 			n.children[i].addNode(resource)
 			return
 		}
 	}
+
 	// definitely a nested resource.
 	// create file node.
 	dirNode := &S3Node{
@@ -53,6 +70,7 @@ func (n *S3Node) addNode(resource *S3Resource) {
 		Path: fmt.Sprintf("%s/%s", n.Path, resource.Path[0]),
 		Type: "Directory",
 	}
+	resource.Path = resource.Path[1:]
 	dirNode.addNode(resource)
 	n.children = append(n.children, dirNode)
 }
@@ -64,14 +82,12 @@ func M() {
 		log.Fatal(err)
 	}
 
-	// initial node.
-	s3Node := &S3Node{Name: "static-resources", Path: "static-resources"}
+	rootNode := &S3Node{Name: "Root", Path: "/", Type: "Root"}
 
 	for _, s3Resource := range s3Resources {
-		if s3Resource.Type != "Bucket" {
-			s3Node.addNode(s3Resource)
-		}
+		// fmt.Println(s3Resource)
+		rootNode.addNode(s3Resource)
 	}
 
-	s3Node.Print()
+	rootNode.Print()
 }

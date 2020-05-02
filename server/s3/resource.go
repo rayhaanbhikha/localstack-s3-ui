@@ -38,6 +38,7 @@ func newS3Resource(genRequest *GenRequest) *S3Resource {
 		return &S3Resource{
 			Method:     genRequest.Method,
 			BucketName: path[0],
+			Name:       path[0],
 			Type:       "Bucket",
 			Path:       path,
 			Data:       genRequest.Data,
