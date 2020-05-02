@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+// TODO: child nodes should be a map. as we need to assert if nodes already exist.
+
 type S3Node struct {
 	Name       string
 	BucketName string
@@ -20,7 +22,8 @@ func (n *S3Node) Print() {
 	Name: %s
 	Type: %s
 	Path: %s
-`, n.Name, n.Type, n.Path))
+	Data: %s
+`, n.Name, n.Type, n.Path, n.Data))
 	if len(n.children) > 0 {
 		for _, childNode := range n.children {
 			childNode.Print()
@@ -61,6 +64,7 @@ func (n *S3Node) addNode(path []string, data string) {
 			Name:       path[0],
 			Type:       "File",
 			Path:       fmt.Sprintf("%s/%s", n.Path, path[0]),
+			Data:       data,
 		}
 		n.children = append(n.children, fileNode)
 		return

@@ -1,28 +1,47 @@
 package s3
 
 import (
-	"log"
+	"bufio"
+	"encoding/json"
+	"os"
+	"strings"
 )
 
-// TODO: Child nodes could be a map with the path as a key
+type APIRequest struct {
+	Type       string `json:"a"`
+	Method     string `json:"m"`
+	Path       string `json:"p"`
+	Data       string `json:"d"`
+	actualPath []string
+}
 
-func M() {
-
-	s3Requests, err := Parse("./recorded_api_calls.mock.json")
+// Parse ... Parse API requests in file.
+func Parse(filePath string) ([]*APIRequest, error) {
+	file, err := os.Open(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	apiRequests := make([]*APIRequest, 0)
 
-	rootNode := &S3Node{Name: "Root", Path: "/", Type: "Root"}
-
-	for _, s3Request := range s3Requests {
-		// fmt.Println(s3Resource)
-		if s3Request.Method == "PUT" {
-			rootNode.addNode(s3Request.actualPath, s3Request.Data)
+	for scanner.Scan() {
+		data := scanner.Bytes()
+		genRequest := &APIRequest{}
+		err := json.Unmarshal(data, genRequest)
+		if err != nil {
+			return nil, err
+		}
+		genRequest.actualPath = strings.FieldsFunc(genRequest.Path, func(c rune) bool {
+			if c == '/' {
+				return true
+			}
+			return false
+		})
+		// if api request type is s3.
+		if genRequest.Type == "s3" {
+			apiRequests = append(apiRequests, genRequest)
 		}
 	}
-
-	rootNode.Print()
-
-	// rootNode.GetNodesAtPath("/static-resource")
+	return apiRequests, nil
 }
