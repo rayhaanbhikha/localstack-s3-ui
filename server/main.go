@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
@@ -9,51 +11,38 @@ import (
 func main() {
 
 	fmt.Println("hello")
-	s3.M()
-	// db, err := db.Init("./s3-orig.db", false)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer db.Conn.Close()
+	rootNode, err := s3.Init("./recorded_api_calls.mock.json")
+	if err != nil {
+		panic(err)
+	}
 
-	// // create tables
-	// _, err = db.SetUp()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	// rootNode.Print()
+	// json, _ := rootNode.Json("/static-resources")
+	// file, _ := os.Create("data_2.json")
 
-	// seed()
+	// defer file.Close()
 
-	// http.HandleFunc("/data", dataHandler)
-	// http.HandleFunc("/echo", echoHandler)
+	// file.Write(json)
+	http.HandleFunc("/resource", resourceHandler(rootNode))
 
-	// log.Printf("About to listen on 8080. Go to https://127.0.0.1:8080/")
-	// log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
+	log.Printf("About to listen on 8080. Go to https://127.0.0.1:8080/")
+	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
 }
 
-// func echoHandler(w http.ResponseWriter, r *http.Request) {
-// 	echo := &echoReq{}
-// 	b := make([]byte, 0)
-// 	r.Body.Read(b)
-// 	// check if error on close.
-// 	r.Body.Close()
-// 	fmt.Println(string(b))
-// 	json.Unmarshal(b, echo)
+func resourceHandler(rootNode *s3.S3Node) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-// 	fmt.Fprintf(w, " %s %s %s", "hello world", r.Method, echo.Data)
-// }
-
-// func dataHandler(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-// 	// TODO: should be parsing file from a particular place.
-// 	s3 := &s3.New()
-
-// 	data, err := json.Marshal(s3ApiCall.Data)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.Write(data)
-// }
+		queryParams := r.URL.Query()
+		if v, ok := queryParams["path"]; ok {
+			fmt.Println("Path: ", v[0])
+			w.Header().Set("Content-Type", "application/json")
+			json, err := rootNode.Json(v[0])
+			if err != nil {
+				// w.Write([]byte(err.Error()))
+				return
+			}
+			w.Write(json)
+		}
+	}
+}

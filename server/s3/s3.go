@@ -1,12 +1,13 @@
 package s3
 
-import "log"
+import (
+	"encoding/json"
+)
 
-func M() {
-
-	s3Requests, err := Parse("./recorded_api_calls.mock.json")
+func Init(filePath string) (*S3Node, error) {
+	s3Requests, err := Parse(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	rootNode := &S3Node{Name: "Root", Path: "/", Type: "Root", children: make(map[string]*S3Node)}
@@ -17,8 +18,33 @@ func M() {
 			rootNode.addNode(s3Request.actualPath, s3Request.Data)
 		}
 	}
+	return rootNode, nil
+}
 
-	rootNode.Print()
+func (n *S3Node) Json(resourcePath string) ([]byte, error) {
 
-	// rootNode.GetNodesAtPath("/static-resource")
+	nodes := make([]*S3Node, 0)
+	node, ok := n.getNode(resourcePath)
+
+	if ok {
+		for _, childNode := range node.children {
+			nodes = append(nodes, childNode)
+		}
+	}
+
+	data, err := json.Marshal(struct {
+		Name     string    `json:"name"`
+		Path     string    `json:"path"`
+		Children []*S3Node `json:"children"`
+	}{
+		Name:     node.Name,
+		Path:     resourcePath,
+		Children: nodes,
+	})
+	// data, err := json.Marshal(nodes)
+
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }

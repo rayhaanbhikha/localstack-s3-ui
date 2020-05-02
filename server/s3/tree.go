@@ -1,9 +1,7 @@
 package s3
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 )
 
 type S3Node struct {
@@ -53,7 +51,7 @@ func (n *S3Node) addNode(path []string, data string) {
 			bucketNode := &S3Node{
 				Name:       bucketName,
 				BucketName: bucketName,
-				Path:       bucketName,
+				Path:       fmt.Sprintf("/%s", bucketName),
 				Type:       "Bucket",
 				children:   make(map[string]*S3Node),
 			}
@@ -102,26 +100,4 @@ func (n *S3Node) addNode(path []string, data string) {
 	n.children[dirName] = dirNode
 	path = path[1:]
 	dirNode.addNode(path, data)
-}
-
-func (n *S3Node) GetNodesAtPath(path string) {
-	nodes := make([]*S3Node, 0)
-	// get nodes at a certain path.
-	if v, ok := n.getNode(path); ok {
-		fmt.Println("Parent: ", v)
-		for _, node := range v.children {
-			nodes = append(nodes, node)
-		}
-	}
-
-	data, err := json.Marshal(nodes)
-	if err != nil {
-		panic(err)
-	}
-
-	file, _ := os.Create("./data_2.json")
-
-	defer file.Close()
-
-	file.Write(data)
 }
