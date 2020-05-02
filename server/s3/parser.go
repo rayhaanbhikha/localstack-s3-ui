@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type APIRequest struct {
+type apiRequest struct {
 	Type       string `json:"a"`
 	Method     string `json:"m"`
 	Path       string `json:"p"`
@@ -15,19 +15,19 @@ type APIRequest struct {
 	actualPath []string
 }
 
-// Parse ... Parse API requests in file.
-func Parse(filePath string) ([]*APIRequest, error) {
+// parse ... parse API requests in file.
+func parse(filePath string) ([]*apiRequest, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
-	apiRequests := make([]*APIRequest, 0)
+	apiRequests := make([]*apiRequest, 0)
 
 	for scanner.Scan() {
 		data := scanner.Bytes()
-		genRequest := &APIRequest{}
+		genRequest := &apiRequest{}
 		err := json.Unmarshal(data, genRequest)
 		if err != nil {
 			return nil, err

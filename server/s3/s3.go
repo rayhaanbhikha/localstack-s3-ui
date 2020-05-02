@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 )
 
-func RootNode() *S3Node {
-	return &S3Node{Name: "Root", Path: "/", Type: "Root", children: make(map[string]*S3Node)}
+// RootNode ... return root s3 node.
+func RootNode() *Node {
+	return &Node{Name: "Root", Path: "/", Type: "Root", children: make(map[string]*Node)}
 }
 
-func (n *S3Node) Init(filePath string) error {
-	s3Requests, err := Parse(filePath)
+// LoadData ... load api requests from localstack.
+func (n *Node) LoadData(filePath string) error {
+	s3Requests, err := parse(filePath)
 	if err != nil {
 		return err
 	}
@@ -22,9 +24,10 @@ func (n *S3Node) Init(filePath string) error {
 	return nil
 }
 
-func (n *S3Node) Json(resourcePath string) ([]byte, error) {
+// JSON ... return json response.
+func (n *Node) JSON(resourcePath string) ([]byte, error) {
 
-	nodes := make([]*S3Node, 0)
+	nodes := make([]*Node, 0)
 	node, ok := n.getNode(resourcePath)
 
 	if ok {
@@ -34,9 +37,9 @@ func (n *S3Node) Json(resourcePath string) ([]byte, error) {
 	}
 
 	data, err := json.Marshal(struct {
-		Name     string    `json:"name"`
-		Path     string    `json:"path"`
-		Children []*S3Node `json:"children"`
+		Name     string  `json:"name"`
+		Path     string  `json:"path"`
+		Children []*Node `json:"children"`
 	}{
 		Name:     node.Name,
 		Path:     resourcePath,

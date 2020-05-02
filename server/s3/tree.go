@@ -4,16 +4,17 @@ import (
 	"fmt"
 )
 
-type S3Node struct {
+// Node ...
+type Node struct {
 	Name       string
 	BucketName string
 	Path       string
 	Type       string
 	Data       string
-	children   map[string]*S3Node
+	children   map[string]*Node
 }
 
-func (n *S3Node) String() string {
+func (n *Node) String() string {
 	return fmt.Sprintf(`
 	Name: %s
 	Type: %s
@@ -22,7 +23,8 @@ func (n *S3Node) String() string {
 `, n.Name, n.Type, n.Path, n.Data)
 }
 
-func (n *S3Node) Print() {
+// Print ... node tree.
+func (n *Node) Print() {
 	fmt.Println(n)
 	if len(n.children) > 0 {
 		for _, childNode := range n.children {
@@ -31,7 +33,7 @@ func (n *S3Node) Print() {
 	}
 }
 
-func (n *S3Node) getNode(path string) (*S3Node, bool) {
+func (n *Node) getNode(path string) (*Node, bool) {
 	if n.Path == path {
 		return n, true
 	}
@@ -44,16 +46,16 @@ func (n *S3Node) getNode(path string) (*S3Node, bool) {
 	return nil, false
 }
 
-func (n *S3Node) addNode(path []string, data string) {
+func (n *Node) addNode(path []string, data string) {
 	if n.Name == "Root" && len(path) == 1 {
 		bucketName := path[0]
 		if _, ok := n.children[bucketName]; !ok {
-			bucketNode := &S3Node{
+			bucketNode := &Node{
 				Name:       bucketName,
 				BucketName: bucketName,
 				Path:       fmt.Sprintf("/%s", bucketName),
 				Type:       "Bucket",
-				children:   make(map[string]*S3Node),
+				children:   make(map[string]*Node),
 			}
 			n.children[bucketName] = bucketNode
 		}
@@ -64,13 +66,13 @@ func (n *S3Node) addNode(path []string, data string) {
 
 		fileName := path[0]
 		if _, ok := n.children[fileName]; !ok {
-			fileNode := &S3Node{
+			fileNode := &Node{
 				BucketName: n.BucketName,
 				Name:       fileName,
 				Type:       "File",
 				Path:       fmt.Sprintf("%s/%s", n.Path, fileName),
 				Data:       data,
-				children:   make(map[string]*S3Node),
+				children:   make(map[string]*Node),
 			}
 			n.children[fileName] = fileNode
 		} else {
@@ -91,11 +93,11 @@ func (n *S3Node) addNode(path []string, data string) {
 	// definitely a nested resource.
 	// create file node.
 	dirName := path[0]
-	dirNode := &S3Node{
+	dirNode := &Node{
 		Name:     dirName,
 		Path:     fmt.Sprintf("%s/%s", n.Path, dirName),
 		Type:     "Directory",
-		children: make(map[string]*S3Node),
+		children: make(map[string]*Node),
 	}
 	n.children[dirName] = dirNode
 	path = path[1:]

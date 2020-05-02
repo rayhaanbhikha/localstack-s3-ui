@@ -10,7 +10,7 @@ import (
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
 
-func startFileWatcher(fileName string, rootNode *s3.S3Node) (*fsnotify.Watcher, error) {
+func startFileWatcher(fileName string, rootNode *s3.Node) (*fsnotify.Watcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func startFileWatcher(fileName string, rootNode *s3.S3Node) (*fsnotify.Watcher, 
 				log.Println("event:", event)
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					log.Println("modified file:", event.Name)
-					rootNode.Init(fileName)
+					rootNode.LoadData(fileName)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -50,7 +50,7 @@ func main() {
 	fileName := "./recorded_api_calls.mock.json"
 	rootNode := s3.RootNode()
 
-	err := rootNode.Init(fileName)
+	err := rootNode.LoadData(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,7 +68,7 @@ func main() {
 }
 
 // TODO: need to sanitize query param input and handle edge cases.
-func resourceHandler(rootNode *s3.S3Node) func(http.ResponseWriter, *http.Request) {
+func resourceHandler(rootNode *s3.Node) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -76,7 +76,7 @@ func resourceHandler(rootNode *s3.S3Node) func(http.ResponseWriter, *http.Reques
 		if v, ok := queryParams["path"]; ok {
 			fmt.Println("Path: ", v[0])
 			w.Header().Set("Content-Type", "application/json")
-			json, err := rootNode.Json(v[0])
+			json, err := rootNode.JSON(v[0])
 			if err != nil {
 				// w.Write([]byte(err.Error()))
 				return
