@@ -24,6 +24,10 @@ func (n *Node) LoadData(filePath string) error {
 	return nil
 }
 
+func (n *Node) Get(resourcePath string) (*Node, bool) {
+	return n.getNode(resourcePath)
+}
+
 // JSON ... return json response.
 func (n *Node) JSON(resourcePath string) ([]byte, error) {
 

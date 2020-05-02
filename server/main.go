@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
@@ -63,9 +64,39 @@ func main() {
 	defer watcher.Close()
 
 	http.HandleFunc("/resource", resourceHandler(rootNode))
+	http.HandleFunc("/page", pageHandler(rootNode))
 
 	log.Printf("About to listen on 8080. Go to https://127.0.0.1:8080/")
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
+}
+
+func pageHandler(rootNode *s3.Node) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		queryParams := r.URL.Query()
+
+		if v, ok := queryParams["path"]; ok {
+			resourcePath := path.Clean(v[0])
+			fmt.Println("Resource Path requested: ", resourcePath)
+			node, ok := rootNode.Get(resourcePath)
+			if !ok {
+				http.NotFound(w, r)
+				return
+			}
+			decoded, err := base64.StdEncoding.DecodeString(node.Data)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			// TODO: node should have content type. (chrome is smart enough to know what the mime type is.)
+			// w.Header().Set("Content-Type", "text/javascript")
+			w.Write([]byte(decoded))
+		} else {
+			http.NotFound(w, r)
+			return
+		}
+	}
 }
 
 func resourceHandler(rootNode *s3.Node) func(http.ResponseWriter, *http.Request) {
