@@ -1,21 +1,21 @@
 package s3
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 )
 
 type S3Resource struct {
 	// TODO: add metadata property.
-	Method     string `json:"-"`
-	BucketName string `json:"bucketName"`
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	ParentDirs []string
-	Resources  []*S3Resource `json:"resources"`
-	ParentPath string        `json:"-"`
-	Path       string        `json:"path"`
-	Data       string        `json:"data"`
+	Method     string   `json:"-"`
+	BucketName string   `json:"bucketName"`
+	Name       string   `json:"name"`
+	Type       string   `json:"type"`
+	Path       []string `json:"path"`
+	Data       string   `json:"data"`
 }
 
 func (r *S3Resource) String() string {
@@ -23,10 +23,8 @@ func (r *S3Resource) String() string {
 		Bucket: %s
 		Name: %s
 		Type: %s
-		ParentDirs: %v
 		Path: %s
-		ParentPath: %s
-	`, r.BucketName, r.Name, r.Type, r.ParentDirs, r.Path, r.ParentPath)
+	`, r.BucketName, r.Name, r.Type, r.Path)
 }
 
 func newS3Resource(genRequest *GenRequest) *S3Resource {
@@ -41,7 +39,7 @@ func newS3Resource(genRequest *GenRequest) *S3Resource {
 			Method:     genRequest.Method,
 			BucketName: path[0],
 			Type:       "Bucket",
-			Path:       genRequest.Path,
+			Path:       path,
 			Data:       genRequest.Data,
 		}
 	}
@@ -51,30 +49,39 @@ func newS3Resource(genRequest *GenRequest) *S3Resource {
 		BucketName: path[0],
 		Name:       path[n-1],
 		Type:       "File",
-		ParentPath: strings.Join(path[:n-1], "/"),
-		ParentDirs: path[1 : n-1],
-		Path:       genRequest.Path,
+		Path:       path,
 		Data:       genRequest.Data,
 	}
 }
 
-func EmptyDirResources(resource *S3Resource) []*S3Resource {
+type GenRequest struct {
+	Type   string `json:"a"`
+	Method string `json:"m"`
+	Path   string `json:"p"`
+	Data   string `json:"d"`
+}
+
+// Parse ... Parse API requests in file.
+func Parse(filePath string) ([]*S3Resource, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
 	resources := make([]*S3Resource, 0)
-	n := len(resource.ParentDirs)
-	createResource := func(bucketName, name string, path []string) *S3Resource {
-		return &S3Resource{
-			Type:       "Directory",
-			Name:       name,
-			BucketName: bucketName,
-			Path:       strings.Join(path, "/"),
-			ParentPath: strings.Join(path[:len(path)-1], "/"),
+	for scanner.Scan() {
+		data := scanner.Bytes()
+		genRequest := &GenRequest{}
+		err := json.Unmarshal(data, genRequest)
+		if err != nil {
+			return nil, err
+		}
+
+		// if api request type is s3.
+		if genRequest.Type == "s3" {
+			resources = append(resources, newS3Resource(genRequest))
 		}
 	}
-	currentPath := []string{resource.BucketName}
-	for _, parentDir := range resource.ParentDirs[:n-1] {
-		currentPath = append(currentPath, parentDir)
-		fmt.Println(createResource(resource.BucketName, parentDir, currentPath))
-	}
-
-	return resources
+	return resources, nil
 }
