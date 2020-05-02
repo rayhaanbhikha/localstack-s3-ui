@@ -68,7 +68,6 @@ func main() {
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
 }
 
-// TODO: need to sanitize query param input and handle edge cases.
 func resourceHandler(rootNode *s3.Node) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
