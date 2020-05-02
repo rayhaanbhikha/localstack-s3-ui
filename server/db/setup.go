@@ -14,7 +14,7 @@ const (
 	);
 	`
 	createResourceFileTableStmt = `
-	CREATE TABLE resource_file(
+	CREATE TABLE IF NOT EXISTS resource_file(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		path TEXT UNIQUE NOT NULL,
 		parent_path TEXT,
@@ -28,7 +28,7 @@ const (
 	);
 `
 	createResourceDirTableStmt = `
-	CREATE TABLE resource_dir(
+	CREATE TABLE IF NOT EXISTS resource_dir(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		path TEXT UNIQUE NOT NULL,
 		name TEXT NOT NULL,
@@ -59,10 +59,10 @@ func (db *DB) SetUp() (sql.Result, error) {
 	handleErr(err)
 	fmt.Println(id)
 
-	res, err = tx.Exec(alterResourceDirTableStmt)
-	handleTxError(tx, err)
-	handleErr(err)
-	fmt.Println(id)
+	// res, err = tx.Exec(alterResourceDirTableStmt)
+	// handleTxError(tx, err)
+	// handleErr(err)
+	// fmt.Println(id)
 
 	res, err = tx.Exec(createResourceFileTableStmt)
 	handleTxError(tx, err)
