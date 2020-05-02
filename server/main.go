@@ -10,23 +10,12 @@ import (
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
 
-func main() {
-
-	fileName := "./recorded_api_calls.mock.json"
-	rootNode := s3.RootNode()
-
-	err := rootNode.Init(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// start watcher.
+func startFileWatcher(fileName string, rootNode *s3.S3Node) (*fsnotify.Watcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	defer watcher.Close()
 
-	done := make(chan bool)
 	go func() {
 		for {
 			select {
@@ -50,16 +39,35 @@ func main() {
 
 	err = watcher.Add(fileName)
 	if err != nil {
+		return nil, err
+	}
+
+	return watcher, nil
+}
+
+func main() {
+
+	fileName := "./recorded_api_calls.mock.json"
+	rootNode := s3.RootNode()
+
+	err := rootNode.Init(fileName)
+	if err != nil {
 		log.Fatal(err)
 	}
+
+	watcher, err := startFileWatcher(fileName, rootNode)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer watcher.Close()
 
 	http.HandleFunc("/resource", resourceHandler(rootNode))
 
 	log.Printf("About to listen on 8080. Go to https://127.0.0.1:8080/")
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
-	<-done
 }
 
+// TODO: need to sanitize query param input and handle edge cases.
 func resourceHandler(rootNode *s3.S3Node) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
