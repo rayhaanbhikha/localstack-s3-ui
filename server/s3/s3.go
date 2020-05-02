@@ -34,18 +34,24 @@ func (n *Node) JSON(resourcePath string) ([]byte, error) {
 		for _, childNode := range node.children {
 			nodes = append(nodes, childNode)
 		}
+	} else {
+		// empty response.
+		return []byte("[]"), nil
 	}
 
 	data, err := json.Marshal(struct {
 		Name     string  `json:"name"`
 		Path     string  `json:"path"`
-		Children []*Node `json:"children"`
+		Data     string  `json:"data,omitempty"`
+		Type     string  `json:"type"`
+		Children []*Node `json:"children,omitempty"`
 	}{
 		Name:     node.Name,
 		Path:     resourcePath,
+		Data:     node.Data,
+		Type:     node.Type,
 		Children: nodes,
 	})
-	// data, err := json.Marshal(nodes)
 
 	if err != nil {
 		return nil, err

@@ -3,6 +3,7 @@ package s3
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -30,7 +31,8 @@ func parse(filePath string) ([]*apiRequest, error) {
 		genRequest := &apiRequest{}
 		err := json.Unmarshal(data, genRequest)
 		if err != nil {
-			return nil, err
+			fmt.Println("Err parsing api requests: ", err.Error())
+			continue
 		}
 		genRequest.actualPath = strings.FieldsFunc(genRequest.Path, func(c rune) bool {
 			if c == '/' {

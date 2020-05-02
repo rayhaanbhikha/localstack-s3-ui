@@ -6,11 +6,11 @@ import (
 
 // Node ...
 type Node struct {
-	Name       string
-	BucketName string
-	Path       string
-	Type       string
-	Data       string
+	Name       string `json:"name"`
+	bucketName string
+	Path       string `json:"path"`
+	Type       string `json:"type"`
+	Data       string `json:"data,omitEmpty"`
 	children   map[string]*Node
 }
 
@@ -52,7 +52,7 @@ func (n *Node) addNode(path []string, data string) {
 		if _, ok := n.children[bucketName]; !ok {
 			bucketNode := &Node{
 				Name:       bucketName,
-				BucketName: bucketName,
+				bucketName: bucketName,
 				Path:       fmt.Sprintf("/%s", bucketName),
 				Type:       "Bucket",
 				children:   make(map[string]*Node),
@@ -67,7 +67,7 @@ func (n *Node) addNode(path []string, data string) {
 		fileName := path[0]
 		if _, ok := n.children[fileName]; !ok {
 			fileNode := &Node{
-				BucketName: n.BucketName,
+				bucketName: n.bucketName,
 				Name:       fileName,
 				Type:       "File",
 				Path:       fmt.Sprintf("%s/%s", n.Path, fileName),

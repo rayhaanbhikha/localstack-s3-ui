@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path"
 
 	"github.com/fsnotify/fsnotify"
 
@@ -73,15 +74,20 @@ func resourceHandler(rootNode *s3.Node) func(http.ResponseWriter, *http.Request)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		queryParams := r.URL.Query()
+
 		if v, ok := queryParams["path"]; ok {
-			fmt.Println("Path: ", v[0])
-			w.Header().Set("Content-Type", "application/json")
-			json, err := rootNode.JSON(v[0])
+			resourcePath := path.Clean(v[0])
+			fmt.Println("Resource Path requested: ", resourcePath)
+			json, err := rootNode.JSON(resourcePath)
 			if err != nil {
-				// w.Write([]byte(err.Error()))
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+			w.Header().Set("Content-Type", "application/json")
 			w.Write(json)
+		} else {
+			http.NotFound(w, r)
+			return
 		}
 	}
 }
