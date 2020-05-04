@@ -1,7 +1,6 @@
-import React, { useContext } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { S3Context } from '../../context'
-import './styles.css'
+import { WrapTable } from '../../Components'
 
 const BucketRow = ({ bucketName }) => <tr>
     <td>
@@ -14,28 +13,36 @@ const BucketRow = ({ bucketName }) => <tr>
 </tr>
 
 export const Buckets = () => {
-    const data = useContext(S3Context)
-    const bucketNames = Object.entries(data).map(([bucketName]) => bucketName)
+    const [data, setdata] = useState({})
 
-    return (
-        <div className="buckets-table">
-            <div className="table-head-container">
-                <div className="table-text">
-                    <strong className="table-bucket-text">Buckets</strong>
-                    &nbsp;&nbsp;
-                    <strong className="table-bucket-nums">({bucketNames.length})</strong>
-                </div>
-            </div>
-            <table>
-                <thead >
-                    <tr className="table-column-heading">
-                        <th className="table-column-heading-text">Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {bucketNames.map((bucketName, index) => <BucketRow key={`bucketName-${index}`} bucketName={bucketName} />)}
-                </tbody>
-            </table>
-        </div>
-    )
+
+    const fetchBuckets = async () => {
+        try {
+            console.log("loading bucket data")
+            const res = await fetch(`http://localhost:8080/resource?path=/`)
+            const data = await res.json();
+            setdata(data.children)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchBuckets();
+    }, [])
+
+    const bucketNames = Object.entries(data).map(([_, { name }]) => name)
+
+    const TableText = () => <>
+        <strong className="table-bucket-text">Buckets</strong>
+        &nbsp;&nbsp;
+        <strong className="table-bucket-nums">({bucketNames.length})</strong>
+    </>
+
+    const TableBody = () =>
+        bucketNames.map((bucketName, index) =>
+            <BucketRow key={`bucketName-${index}`} bucketName={bucketName} />
+        );
+
+    return WrapTable(TableText, TableBody)
 }
