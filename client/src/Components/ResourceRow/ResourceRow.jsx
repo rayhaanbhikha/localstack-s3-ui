@@ -6,13 +6,13 @@ import { ReactComponent as BucketIcon } from './bucket.svg'
 import './styles.css'
 import { withRouter } from 'react-router-dom'
 
-const Component = ({ history, resource, fetchResources }) => {
+const Component = ({ resource, fetchResources }) => {
   return <tr>
     <td onClick={() => {
       if (resource.type === "File") {
         window.location.href = `http://localhost:8080/page?path=${resource.path}`
       }
-      fetchResources(resource)
+      fetchResources(resource.path)
     }}>
       <div className="resource">
         { resource.type === "Bucket" && <BucketIcon className="icon"/>}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { WrapTable, ResourceRow, BreadCrums } from '../../Components'
 import { withRouter } from 'react-router-dom'
 
-export const Component = ({history}) => {
+export const Component = ({ history }) => {
 
     const [state, setState] = useState({
         path: "/",
@@ -12,18 +12,30 @@ export const Component = ({history}) => {
         resources: []
     })
 
-    const fetchResources = async (resource) => {
+    const fetchResources = async (path = "/") => {
         try {
-            const res = await fetch(`http://localhost:8080/resource?path=${resource.path}`)
+            const res = await fetch(`http://localhost:8080/resource?path=${path}`)
             const data = await res.json();
             setState(prevState => ({
                 ...prevState,
                 name: data.name,
                 path: data.path,
-                breadcrums: [
-                    ...prevState.breadcrums,
-                    { label: resource.name, url: resource.path }
-                ],
+                breadcrums: data.path.split("/").reduce((acc, pathSegment, index) => {
+                    const n = acc.length
+                    let breadCrum = {}
+                    if (index === 0) {
+                        breadCrum = {
+                            label: "LocalStack S3",
+                            url: "/"
+                        }
+                    } else {
+                        breadCrum = {
+                            label: pathSegment,
+                            url: n > 1 ? acc[n - 1].url + "/" + pathSegment : "/" + pathSegment,
+                        }
+                    }
+                    return [...acc, breadCrum]
+                }, []),
                 type: data.type,
                 resources: data.children || []
             }))
@@ -33,11 +45,11 @@ export const Component = ({history}) => {
     }
 
     useEffect(() => {
-        fetchResources(state);
+        fetchResources();
     }, [])
 
     const TableText = () => <>
-        <BreadCrums history={history} breadcrums={state.breadcrums} />
+        <BreadCrums breadcrums={state.breadcrums} fetchResources={fetchResources} />
         {state.type === "Root" ?
             <>
                 <strong className="table-bucket-text">Buckets</strong>

@@ -3,11 +3,11 @@ import { ReactComponent as Chevron } from './chevron.svg'
 
 import './styles.css'
 
-export const BreadCrums = ({ history, breadcrums }) => {
+export const BreadCrums = ({ fetchResources, breadcrums }) => {
     return <div className="breadcrums">
         {breadcrums.map((breadcrum, index) =>
             <>
-                <div onClick={() => history.replace(breadcrum.url)}>
+                <div onClick={() => fetchResources(breadcrum.url)}>
                     {breadcrum.label}
                 </div>
               &nbsp;
