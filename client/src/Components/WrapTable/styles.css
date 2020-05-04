@@ -47,5 +47,6 @@ td {
 }
 
 tbody {
+  word-break: break-word;
   background: white;
 }
