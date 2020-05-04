@@ -49,7 +49,7 @@ func startFileWatcher(fileName string, rootNode *s3.Node) (*fsnotify.Watcher, er
 
 func main() {
 
-	fileName := "./recorded_api_calls.mock.json"
+	fileName := "./recorded_api_calls.json"
 	rootNode := s3.RootNode()
 
 	err := rootNode.LoadData(fileName)

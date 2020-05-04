@@ -4,18 +4,18 @@ import { ReactComponent as Chevron } from './chevron.svg'
 import './styles.css'
 
 export const BreadCrums = ({ breadcrums }) => {
-  return <div className="breadcrums">
-      {breadcrums.map((breadcrum, index) =>
-          <>
-              {breadcrum}
+    return <div className="breadcrums">
+        {breadcrums.map((breadcrum, index) =>
+            <>
+                {breadcrum.label}
               &nbsp;
               {index !== breadcrums.length - 1 &&
-                  <>
-                      <Chevron />
+                    <>
+                        <Chevron />
                   &nbsp;
                   </>
-              }
-          </>
-      )}
-  </div>
+                }
+            </>
+        )}
+    </div>
 }

@@ -1,50 +1,47 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom'
-import { ResourceRow, BreadCrums, Resource} from '../../Components'
+import { ResourceRow, BreadCrums, Resource, WrapTable } from '../../Components'
 import { S3Context } from '../../context'
 
 import './styles.css'
 
+
 const Component = ({ match }) => {
 
-    const data = useContext(S3Context);
     const bucketName = match.params.bucketName;
-    const bucketResources = data[bucketName].Resources;
 
-    const initState = {
-        type: "Dir",
-        resources: bucketResources,
-        breadcrums: ["Localstack S3", bucketName]
-    }
-    const [state, setState] = useState(initState)
+    const [path, setPath] = useState("/" + bucketName)
+    const [resources, setResources] = useState([])
+    const [breadcrums, setBreadcrums] = useState([
+        { label: "Localstack S3", url: "/s3" },
+        { label: bucketName, url: `/s3/${path}` }
+    ])
 
-    return <div className="buckets-table">
-        <div className="table-head-container">
-            <div className="table-text">
-                <BreadCrums breadcrums={state.breadcrums} />
-                <strong className="table-bucket-text">{bucketName}</strong>
-            </div>
-        </div>
-        { state.type === "Dir" ? 
-        <table>
-            <thead >
-                <tr className="table-column-heading">
-                    <th className="table-column-heading-text">Name</th>
-                </tr>
-            </thead>
-            <tbody>
-                {
-                    state.resources.map((bucketData, index) =>
-                        <ResourceRow resource={bucketData} key={`${bucketData.name}-${index}`} setState={setState} />
-                    )
-                }
-            </tbody>
-        </table>
-        : <>
-            <Resource resource={state.resource}/>    
-        </>
+    const fetchResources = async () => {
+        try {
+            console.log("loading bucket data")
+            const res = await fetch(`http://localhost:8080/resource?path=${path}`)
+            const data = await res.json();
+            setResources(data.children)
+        } catch (error) {
+            console.log(error)
         }
-    </div>
+    }
+
+    useEffect(() => {
+        fetchResources();
+    }, [path])
+
+    const TableText = () => <>
+        <BreadCrums breadcrums={breadcrums} />
+        <strong className="table-bucket-text">{bucketName}</strong>
+    </>
+
+    const TableBody = () => resources.map((bucketData, index) =>
+        <ResourceRow resource={bucketData} key={`${bucketData.name}-${index}`} setPath={setPath} />
+    )
+
+    return WrapTable(TableText, TableBody);
 }
 
 export const Bucket = withRouter(Component)

@@ -3,23 +3,15 @@ import { ReactComponent as FileIcon } from './file.svg'
 import { ReactComponent as FolderIcon } from './folder.svg'
 
 import './styles.css'
+import { withRouter } from 'react-router-dom'
 
-export const ResourceRow = ({ resource, setState }) => {
+const Component = ({ history, resource, setPath }) => {
   return <tr>
     <td onClick={() => {
       if (resource.type === "File") {
-        setState(prevState => ({
-          type: "File",
-          resource: resource,
-          breadcrums: [...prevState.breadcrums, resource.name]
-        }))
-        return
-      } 
-      setState(prevState => ({
-        type: "Dir",
-        resources: resource.resources,
-        breadcrums: [...prevState.breadcrums, resource.name]
-      }))
+        history.replace(`/s3/resource/${resource.name}`, { path: resource.path })
+      }
+      setPath(resource.path)
     }}>
       <div className="resource">
         {resource.type === "File" ? <FileIcon className="icon" /> : <FolderIcon className="icon" />}
@@ -30,3 +22,5 @@ export const ResourceRow = ({ resource, setState }) => {
     </td>
   </tr>
 }
+
+export const ResourceRow = withRouter(Component)
