@@ -105,9 +105,15 @@ func (n *Node) addNode(s3Request *apiRequest) {
 	// definitely a nested resource.
 	// create file node.
 	dirName := s3Request.actualPath[0]
+	var path string
+	if n.Path == "/" {
+		path = fmt.Sprintf("/%s", dirName)
+	} else {
+		path = fmt.Sprintf("%s/%s", n.Path, dirName)
+	}
 	dirNode := &Node{
 		Name:     dirName,
-		Path:     fmt.Sprintf("%s/%s", n.Path, dirName),
+		Path:     path,
 		Type:     "Directory",
 		children: make(map[string]*Node),
 	}
