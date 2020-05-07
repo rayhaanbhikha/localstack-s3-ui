@@ -1,54 +1,17 @@
 package main
 
 import (
-	"encoding/base64"
-	"fmt"
 	"log"
 	"net/http"
-	"path"
-
-	"github.com/fsnotify/fsnotify"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
+	"golang.org/x/net/context"
 )
 
-func startFileWatcher(fileName string, rootNode *s3.Node) (*fsnotify.Watcher, error) {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return nil, err
-	}
-
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				log.Println("event:", event)
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					log.Println("modified file:", event.Name)
-					rootNode.LoadData(fileName)
-				}
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				log.Println("error:", err)
-			}
-		}
-	}()
-
-	err = watcher.Add(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	return watcher, nil
-}
-
 func main() {
-
 	fileName := "./recorded_api_calls.json"
 	rootNode := s3.RootNode()
 
@@ -62,62 +25,45 @@ func main() {
 		log.Fatal(err)
 	}
 	defer watcher.Close()
-
-	http.HandleFunc("/resource", resourceHandler(rootNode))
-	http.HandleFunc("/page", pageHandler(rootNode))
-
-	log.Printf("About to listen on 8080. Go to https://127.0.0.1:8080/")
-	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
+	startServer(rootNode)
 }
 
-func pageHandler(rootNode *s3.Node) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+func startServer(rootNode *s3.Node) {
 
-		queryParams := r.URL.Query()
+	mux := http.NewServeMux()
+	mux.Handle("/resource", queryPathMiddleware(resourceHandler(rootNode)))
+	mux.Handle("/page", queryPathMiddleware(pageHandler(rootNode)))
 
-		if v, ok := queryParams["path"]; ok {
-			resourcePath := path.Clean(v[0])
-			fmt.Println("Resource Path requested: ", resourcePath)
-			node, ok := rootNode.Get(resourcePath)
-			if !ok {
-				http.NotFound(w, r)
-				return
-			}
-			decoded, err := base64.StdEncoding.DecodeString(node.Data)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			// TODO: node should have content type. (chrome is smart enough to know what the mime type is.)
-			// w.Header().Set("Content-Type", "text/javascript")
-			w.Write([]byte(decoded))
-		} else {
-			http.NotFound(w, r)
-			return
-		}
+	server := &http.Server{
+		Addr:    "127.0.0.1:8080",
+		Handler: mux,
 	}
-}
 
-func resourceHandler(rootNode *s3.Node) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+	server.RegisterOnShutdown(func() {
+		log.Println("Shutting down server")
+	})
 
-		queryParams := r.URL.Query()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
 
-		if v, ok := queryParams["path"]; ok {
-			resourcePath := path.Clean(v[0])
-			fmt.Println("Resource Path requested: ", resourcePath)
-			json, err := rootNode.JSON(resourcePath)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.Write(json)
-		} else {
-			http.NotFound(w, r)
-			return
+	go func() {
+		log.Println("Server starting on PORT 8080")
+
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server failed to start: %s", err.Error())
 		}
+	}()
+
+	sig := <-c
+	log.Printf("Signal received: %s\n", sig.String())
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer func() {
+		cancel()
+	}()
+	err := server.Shutdown(ctx)
+
+	if err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Err shutting down server: %s", err.Error())
 	}
 }
