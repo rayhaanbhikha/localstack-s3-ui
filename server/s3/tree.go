@@ -10,7 +10,7 @@ type Node struct {
 	bucketName string
 	Path       string `json:"path"`
 	Type       string `json:"type"`
-	Data       string `json:"data,omitEmpty"`
+	Data       string `json:"-"`
 	children   map[string]*Node
 }
 
@@ -63,7 +63,6 @@ func (n *Node) addNode(path []string, data string) {
 	}
 
 	if n.Name != "Root" && len(path) == 1 {
-
 		fileName := path[0]
 		if _, ok := n.children[fileName]; !ok {
 			fileNode := &Node{
@@ -76,7 +75,6 @@ func (n *Node) addNode(path []string, data string) {
 			}
 			n.children[fileName] = fileNode
 		} else {
-			// just update the data.
 			n.children[fileName].Data = data
 		}
 		return
