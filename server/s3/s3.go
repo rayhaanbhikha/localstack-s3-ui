@@ -34,16 +34,14 @@ func (n *Node) Get(resourcePath string) (*Node, bool) {
 // JSON ... return json response.
 func (n *Node) JSON(resourcePath string) ([]byte, error) {
 
-	nodes := make([]*Node, 0)
 	node, ok := n.getNode(resourcePath)
-
-	if ok {
-		for _, childNode := range node.children {
-			nodes = append(nodes, childNode)
-		}
-	} else {
-		// empty response.
+	if !ok {
 		return []byte("[]"), nil
+	}
+
+	nodes := make([]*Node, 0)
+	for _, childNode := range node.children {
+		nodes = append(nodes, childNode)
 	}
 
 	data, err := json.Marshal(struct {
