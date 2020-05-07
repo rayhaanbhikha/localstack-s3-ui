@@ -17,8 +17,11 @@ func (n *Node) LoadData(filePath string) error {
 	}
 
 	for _, s3Request := range s3Requests {
-		if s3Request.Method == "PUT" {
-			n.addNode(s3Request.actualPath, s3Request.Data)
+		switch s3Request.Method {
+		case "PUT":
+			n.addNode(s3Request)
+		case "DELETE":
+			n.deleteNode(s3Request)
 		}
 	}
 	return nil

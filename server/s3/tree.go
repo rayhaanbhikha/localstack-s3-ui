@@ -46,9 +46,23 @@ func (n *Node) getNode(path string) (*Node, bool) {
 	return nil, false
 }
 
-func (n *Node) addNode(path []string, data string) {
-	if n.Name == "Root" && len(path) == 1 {
-		bucketName := path[0]
+func (n *Node) deleteNode(s3Request *apiRequest) {
+	pathLen := len(s3Request.actualPath) - 1
+	keyToDel := s3Request.actualPath[pathLen]
+
+	if _, ok := n.children[keyToDel]; ok {
+		delete(n.children, keyToDel)
+		return
+	}
+
+	for key := range n.children {
+		n.children[key].deleteNode(s3Request)
+	}
+}
+
+func (n *Node) addNode(s3Request *apiRequest) {
+	if n.Name == "Root" && len(s3Request.actualPath) == 1 {
+		bucketName := s3Request.actualPath[0]
 		if _, ok := n.children[bucketName]; !ok {
 			bucketNode := &Node{
 				Name:       bucketName,
@@ -62,35 +76,35 @@ func (n *Node) addNode(path []string, data string) {
 		return
 	}
 
-	if n.Name != "Root" && len(path) == 1 {
-		fileName := path[0]
+	if n.Name != "Root" && len(s3Request.actualPath) == 1 {
+		fileName := s3Request.actualPath[0]
 		if _, ok := n.children[fileName]; !ok {
 			fileNode := &Node{
 				bucketName: n.bucketName,
 				Name:       fileName,
 				Type:       "File",
 				Path:       fmt.Sprintf("%s/%s", n.Path, fileName),
-				Data:       data,
+				Data:       s3Request.Data,
 				children:   make(map[string]*Node),
 			}
 			n.children[fileName] = fileNode
 		} else {
-			n.children[fileName].Data = data
+			n.children[fileName].Data = s3Request.Data
 		}
 		return
 	}
 
 	for childPath, childNode := range n.children {
-		if childNode.Name == path[0] {
-			path = path[1:]
-			n.children[childPath].addNode(path, data)
+		if childNode.Name == s3Request.actualPath[0] {
+			s3Request.actualPath = s3Request.actualPath[1:]
+			n.children[childPath].addNode(s3Request)
 			return
 		}
 	}
 
 	// definitely a nested resource.
 	// create file node.
-	dirName := path[0]
+	dirName := s3Request.actualPath[0]
 	dirNode := &Node{
 		Name:     dirName,
 		Path:     fmt.Sprintf("%s/%s", n.Path, dirName),
@@ -98,6 +112,6 @@ func (n *Node) addNode(path []string, data string) {
 		children: make(map[string]*Node),
 	}
 	n.children[dirName] = dirNode
-	path = path[1:]
-	dirNode.addNode(path, data)
+	s3Request.actualPath = s3Request.actualPath[1:]
+	dirNode.addNode(s3Request)
 }
