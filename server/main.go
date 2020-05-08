@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"time"
 
+	mux "github.com/gorilla/mux"
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 	"golang.org/x/net/context"
 )
@@ -31,13 +32,18 @@ func main() {
 
 func startServer(rootNode *s3.Node) {
 
-	mux := http.NewServeMux()
-	mux.Handle("/resource", queryPathMiddleware(resourceHandler(rootNode)))
-	mux.Handle("/page", queryPathMiddleware(pageHandler(rootNode)))
+	r := mux.NewRouter()
+	r.PathPrefix("/api/resource").
+		Handler(http.StripPrefix("/api/resource", resourcesHandler(rootNode))).
+		Methods("GET")
+
+	r.PathPrefix("/").
+		Handler(resourceHandler(rootNode)).
+		Methods("GET")
 
 	server := &http.Server{
 		Addr:    "127.0.0.1:8080",
-		Handler: mux,
+		Handler: r,
 	}
 
 	server.RegisterOnShutdown(func() {

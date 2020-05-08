@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -10,33 +9,12 @@ import (
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
 
-type contextKey string
-
-func (c contextKey) String() string {
-	return "mypackage context key " + string(c)
-}
-
-var resourcePathCtxKey = contextKey("path")
-
-func queryPathMiddleware(next http.Handler) http.Handler {
+func resourceHandler(rootNode *s3.Node) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		queryParams := r.URL.Query()
-		if v, ok := queryParams["path"]; ok {
-			path := path.Clean(v[0])
-			fmt.Println("Resource Path requested: ", path)
-			ctx := context.WithValue(r.Context(), resourcePathCtxKey, path)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		} else {
-			http.NotFound(w, r)
-		}
-	})
-}
-
-func pageHandler(rootNode *s3.Node) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resourcePath := r.Context().Value(resourcePathCtxKey).(string)
+		resourcePath := path.Clean(r.URL.EscapedPath())
+		fmt.Println(resourcePath)
 		node, ok := rootNode.Get(resourcePath)
+		// TODO: node may not be a child node.
 		if !ok {
 			http.NotFound(w, r)
 			return
@@ -51,9 +29,10 @@ func pageHandler(rootNode *s3.Node) http.Handler {
 	})
 }
 
-func resourceHandler(rootNode *s3.Node) http.Handler {
+func resourcesHandler(rootNode *s3.Node) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resourcePath := r.Context().Value(resourcePathCtxKey).(string)
+		resourcePath := path.Clean(r.URL.EscapedPath())
+		fmt.Println(resourcePath)
 		json, err := rootNode.JSON(resourcePath)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
