@@ -3,8 +3,6 @@ import { WrapTable, ResourceRow, BreadCrums } from '../../Components'
 import { joinPath } from '../../utils'
 import { config } from '../../config'
 
-console.log(config)
-
 // TODO: need a linter. 
 export const Resources = () => {
     const [state, setstate] = useState({
@@ -15,10 +13,8 @@ export const Resources = () => {
     const fetchResources = async (resourcePath = "/") => {
         try {
             const resourcesURL = joinPath(config.apiUrl, resourcePath)
-            console.log({resourcesURL})
             const res = await fetch(resourcesURL);
             const data = await res.json();
-            console.log(data);
             setstate({
                 path: data.path,
                 name: data.name,

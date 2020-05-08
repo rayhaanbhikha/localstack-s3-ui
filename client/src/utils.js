@@ -12,14 +12,10 @@ const joinPathReducer = (path, newPath) => {
   }
 }
 
-export const joinPath = (currentPath, ...paths) => {
-  console.log(currentPath, paths)
-  return paths.reduce(joinPathReducer, currentPath)
-}
+export const joinPath = (currentPath, ...paths) => paths.reduce(joinPathReducer, currentPath)
 
 export const generateBreadCrums = (str) => {
   const splitStr = str.split("/")
-  console.log(splitStr.slice(1))
   let accString = "/"
   return splitStr.slice(1).map(pathName => {
     accString += joinPath(pathName, "/")
