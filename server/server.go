@@ -61,7 +61,7 @@ func startServer(rootNode *s3.Node) {
 
 	// TODO: use os.GetEnv to retieve PORT.
 	server := &http.Server{
-		Addr:    fmt.Sprintf("127.0.0.1:%s", utils.GetPort()),
+		Addr:    fmt.Sprintf(":%s", utils.GetPort()),
 		Handler: r,
 	}
 
@@ -73,7 +73,7 @@ func startServer(rootNode *s3.Node) {
 	signal.Notify(c, os.Interrupt)
 
 	go func() {
-		log.Println("Server starting on PORT 8080")
+		log.Printf("Server starting on %s\n", server.Addr)
 
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server failed to start: %s", err.Error())
