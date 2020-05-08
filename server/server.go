@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
+	"github.com/rayhaanbhikha/localstack-s3-ui/utils"
 )
 
 type spaHandler struct {
@@ -59,7 +61,7 @@ func startServer(rootNode *s3.Node) {
 
 	// TODO: use os.GetEnv to retieve PORT.
 	server := &http.Server{
-		Addr:    "127.0.0.1:8080",
+		Addr:    fmt.Sprintf("127.0.0.1:%s", utils.GetPort()),
 		Handler: r,
 	}
 
