@@ -1,0 +1,9 @@
+.refresh-icon {
+  padding: 20px;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.refresh-icon:hover {
+  transform: scale(1.5);
+}

@@ -6,6 +6,8 @@
 }
 
 .table-head-container {
+  display: flex;
+  justify-content: space-between;
   background: #fafafa;
 }
 

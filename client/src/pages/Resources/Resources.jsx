@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { WrapTable, ResourceRow, BreadCrums } from '../../Components'
-import { withRouter } from 'react-router-dom'
 import { joinPath } from '../../utils'
 import { config } from '../../config'
 
@@ -57,5 +56,5 @@ export const Resources = () => {
             <ResourceRow key={`bucketName-${index}`} resource={resource} fetchResources={fetchResources} />
         );
 
-    return WrapTable(TableHead, TableBody)
+    return WrapTable(TableHead, TableBody, fetchResources.bind(null, state.path))
 }
