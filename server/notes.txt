@@ -1,7 +1,0 @@
-With localstack you can't actually cp or mv an empty dir into an s3 bucket.
-
-Which means a path like /static-resources/test-dir/hello.txt
-
-bucket: static-resources
-dirs: [test-dir]
-fileName: hello.txt
