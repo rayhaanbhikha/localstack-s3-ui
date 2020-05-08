@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/base64"
-	"fmt"
+	"log"
 	"net/http"
 	"path"
 
@@ -12,7 +12,7 @@ import (
 func resourceHandler(rootNode *s3.Node) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resourcePath := path.Clean(r.URL.EscapedPath())
-		fmt.Println("Resource: ", resourcePath)
+		log.Println("Resource: ", resourcePath)
 		node, ok := rootNode.Get(resourcePath)
 		// TODO: node may not be a child node.
 		if !ok {
@@ -32,7 +32,7 @@ func resourceHandler(rootNode *s3.Node) http.Handler {
 func resourcesHandler(rootNode *s3.Node) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resourcePath := path.Clean(r.URL.EscapedPath())
-		fmt.Println("Resources: ", resourcePath)
+		log.Println("Resources: ", resourcePath)
 		json, err := rootNode.JSON(resourcePath)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
