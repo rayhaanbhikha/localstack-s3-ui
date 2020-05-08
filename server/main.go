@@ -12,7 +12,8 @@ import (
 )
 
 func main() {
-	fileName := "./recorded_api_calls.json"
+	// TODO: os.GetEnv file path.
+	fileName := "./mock-data/recorded_api_calls.json"
 	rootNode := s3.RootNode()
 
 	err := rootNode.LoadData(fileName)
