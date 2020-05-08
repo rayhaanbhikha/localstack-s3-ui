@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   localstack-s3-ui:
-    image: raybhiks95/localstack-s3-ui:0.0.1
+    image: gosuper/localstack-s3-ui:0.0.1
     volumes:
       - ./recorded_api_calls.json:/var/recorded_api_calls.json:ro
     ports:
