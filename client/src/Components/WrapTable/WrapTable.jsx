@@ -7,7 +7,7 @@ export const WrapTable = (TableText, TableBody) => {
     <div className="buckets-table">
       <div className="table-head-container">
         <div className="table-text">
-            <TableText />
+          <TableText />
         </div>
       </div>
       <table>

@@ -3,3 +3,18 @@
   margin: 20px 0;
   display: flex;
 }
+
+.breadcrum {
+  align-items: center;
+  display: flex;
+}
+
+.breadcrum-prev {
+  cursor: pointer;
+  color: royalblue;
+}
+
+.breadcrum-prev:hover {
+  text-decoration-line: underline;
+}
+

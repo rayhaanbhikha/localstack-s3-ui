@@ -6,3 +6,7 @@
 .resource {
   display: flex;
 }
+
+.resource-row {
+  cursor: pointer;
+}
