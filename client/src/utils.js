@@ -17,11 +17,6 @@ export const joinPath = (currentPath, ...paths) => {
   return paths.reduce(joinPathReducer, currentPath)
 }
 
-// console.log(joinPath("http://localhost:8080/api/resource/", "/static-resources"))
-// console.log(joinPath("http://localhost:8080/api/resource", "/static-resources/", "/hello wolrd/"))
-// console.log(joinPath("http://localhost:8080/api/resource/", "static-resources"))
-// console.log(joinPath("http://localhost:8080/api/resource", "static-resources", "/hello world"))
-
 export const generateBreadCrums = (str) => {
   const splitStr = str.split("/")
   console.log(splitStr.slice(1))

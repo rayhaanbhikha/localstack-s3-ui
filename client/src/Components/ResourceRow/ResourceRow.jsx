@@ -6,13 +6,14 @@ import { ReactComponent as FolderIcon } from './folder.svg'
 import { ReactComponent as BucketIcon } from './bucket.svg'
 
 import './styles.css'
-import { joinPath } from '../../utils'
+import { joinPath } from '../../utils';
+import { config } from '../../config';
 
 const Component = ({ resource, fetchResources }) => {
 
   const onClickHandler = () => {
     if (resource.type === "File") {
-      window.location.href = joinPath('http://localhost:8080', resource.path)
+      window.location.href = joinPath(config.host, resource.path)
     }
     fetchResources(resource.path)
   }

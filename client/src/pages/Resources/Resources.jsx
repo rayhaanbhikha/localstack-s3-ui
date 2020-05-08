@@ -2,21 +2,21 @@ import React, { useEffect, useState } from 'react'
 import { WrapTable, ResourceRow, BreadCrums } from '../../Components'
 import { withRouter } from 'react-router-dom'
 import { joinPath } from '../../utils'
+import { config } from '../../config'
 
-const apiURL = `http://localhost:8080/api/resource/`;
+console.log(config)
 
 // TODO: need a linter. 
 export const Resources = () => {
-
     const [state, setstate] = useState({
         path: "",
         resources: []
     })
 
-    const fetchResources = async (resourcePath) => {
+    const fetchResources = async (resourcePath = "/") => {
         try {
-            const resourcesURL = resourcePath ? joinPath(apiURL, resourcePath) : apiURL
-            console.log(resourcesURL)
+            const resourcesURL = joinPath(config.apiUrl, resourcePath)
+            console.log({resourcesURL})
             const res = await fetch(resourcesURL);
             const data = await res.json();
             console.log(data);
