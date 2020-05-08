@@ -8,11 +8,16 @@ import (
 	"strings"
 )
 
+type ReqHeaders struct {
+	ContentType string `json:"Content-Type"`
+}
+
 type apiRequest struct {
-	Type       string `json:"a"`
-	Method     string `json:"m"`
-	Path       string `json:"p"`
-	Data       string `json:"d"`
+	Type       string     `json:"a"`
+	Method     string     `json:"m"`
+	Path       string     `json:"p"`
+	Data       string     `json:"d"`
+	Headers    ReqHeaders `json:"h"`
 	actualPath []string
 }
 

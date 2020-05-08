@@ -46,8 +46,7 @@ func pageHandler(rootNode *s3.Node) http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		// TODO: node should have content type. (chrome is smart enough to know what the mime type is.)
-		// w.Header().Set("Content-Type", "text/javascript")
+		w.Header().Set("Content-Type", node.Headers.ContentType)
 		w.Write([]byte(decoded))
 	})
 }

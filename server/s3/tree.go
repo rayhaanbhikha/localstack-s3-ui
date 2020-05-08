@@ -8,9 +8,10 @@ import (
 type Node struct {
 	Name       string `json:"name"`
 	bucketName string
-	Path       string `json:"path"`
-	Type       string `json:"type"`
-	Data       string `json:"-"`
+	Path       string     `json:"path"`
+	Type       string     `json:"type"`
+	Data       string     `json:"-"`
+	Headers    ReqHeaders `json:"h"`
 	children   map[string]*Node
 }
 
@@ -85,6 +86,7 @@ func (n *Node) addNode(s3Request *apiRequest) {
 				Type:       "File",
 				Path:       fmt.Sprintf("%s/%s", n.Path, fileName),
 				Data:       s3Request.Data,
+				Headers:    s3Request.Headers,
 				children:   make(map[string]*Node),
 			}
 			n.children[fileName] = fileNode

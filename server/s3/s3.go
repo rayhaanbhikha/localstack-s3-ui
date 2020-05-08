@@ -45,14 +45,16 @@ func (n *Node) JSON(resourcePath string) ([]byte, error) {
 	}
 
 	data, err := json.Marshal(struct {
-		Name     string  `json:"name"`
-		Path     string  `json:"path"`
-		Type     string  `json:"type"`
-		Children []*Node `json:"children,omitempty"`
+		Name     string     `json:"name"`
+		Path     string     `json:"path"`
+		Type     string     `json:"type"`
+		Headers  ReqHeaders `json:"headers"`
+		Children []*Node    `json:"children,omitempty"`
 	}{
 		Name:     node.Name,
 		Path:     resourcePath,
 		Type:     node.Type,
+		Headers:  node.Headers,
 		Children: nodes,
 	})
 
