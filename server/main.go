@@ -33,7 +33,7 @@ func main() {
 func startServer(rootNode *s3.Node) {
 
 	r := mux.NewRouter()
-	r.PathPrefix("/api/resource").
+	r.PathPrefix("/api/resource/").
 		Handler(http.StripPrefix("/api/resource", resourcesHandler(rootNode))).
 		Methods("GET")
 

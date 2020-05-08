@@ -12,7 +12,7 @@ import (
 func resourceHandler(rootNode *s3.Node) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resourcePath := path.Clean(r.URL.EscapedPath())
-		fmt.Println(resourcePath)
+		fmt.Println("Resource: ", resourcePath)
 		node, ok := rootNode.Get(resourcePath)
 		// TODO: node may not be a child node.
 		if !ok {
@@ -32,7 +32,7 @@ func resourceHandler(rootNode *s3.Node) http.Handler {
 func resourcesHandler(rootNode *s3.Node) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resourcePath := path.Clean(r.URL.EscapedPath())
-		fmt.Println(resourcePath)
+		fmt.Println("Resources: ", resourcePath)
 		json, err := rootNode.JSON(resourcePath)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
