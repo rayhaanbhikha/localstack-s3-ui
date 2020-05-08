@@ -12,6 +12,7 @@ import (
 
 func resourceHandler(rootNode *s3.Node) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		resourcePath := path.Clean(r.URL.EscapedPath())
 		log.Println("Resource: ", resourcePath)
 		node, ok := rootNode.GetNode(resourcePath)
@@ -32,6 +33,7 @@ func resourceHandler(rootNode *s3.Node) http.Handler {
 
 func resourcesHandler(rootNode *s3.Node) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		resourcePath := path.Clean(r.URL.EscapedPath())
 		log.Println("Resources: ", resourcePath)
 		node, ok := rootNode.GetNode(resourcePath)
