@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// ReqHeaders ... headers attached to S3 Resource
 type ReqHeaders struct {
 	ContentType string `json:"Content-Type"`
 }
@@ -45,7 +46,7 @@ func parse(filePath string) ([]*apiRequest, error) {
 			}
 			return false
 		})
-		// if api request type is s3.
+
 		if genRequest.Type == "s3" {
 			apiRequests = append(apiRequests, genRequest)
 		}

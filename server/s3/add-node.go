@@ -5,22 +5,22 @@ import "fmt"
 func (n *Node) addNode(s3Request *apiRequest) {
 	if n.Name == "Root" && len(s3Request.actualPath) == 1 {
 		bucketName := s3Request.actualPath[0]
-		if _, ok := n.children[bucketName]; !ok {
+		if _, ok := n.Children[bucketName]; !ok {
 			bucketNode := &Node{
 				Name:       bucketName,
 				bucketName: bucketName,
 				Path:       fmt.Sprintf("/%s", bucketName),
 				Type:       "Bucket",
-				children:   make(map[string]*Node),
+				Children:   make(map[string]*Node),
 			}
-			n.children[bucketName] = bucketNode
+			n.Children[bucketName] = bucketNode
 		}
 		return
 	}
 
 	if n.Name != "Root" && len(s3Request.actualPath) == 1 {
 		fileName := s3Request.actualPath[0]
-		if _, ok := n.children[fileName]; !ok {
+		if _, ok := n.Children[fileName]; !ok {
 			fileNode := &Node{
 				bucketName: n.bucketName,
 				Name:       fileName,
@@ -28,19 +28,19 @@ func (n *Node) addNode(s3Request *apiRequest) {
 				Path:       fmt.Sprintf("%s/%s", n.Path, fileName),
 				Data:       s3Request.Data,
 				Headers:    s3Request.Headers,
-				children:   make(map[string]*Node),
+				Children:   make(map[string]*Node),
 			}
-			n.children[fileName] = fileNode
+			n.Children[fileName] = fileNode
 		} else {
-			n.children[fileName].Data = s3Request.Data
+			n.Children[fileName].Data = s3Request.Data
 		}
 		return
 	}
 
-	for childPath, childNode := range n.children {
+	for childPath, childNode := range n.Children {
 		if childNode.Name == s3Request.actualPath[0] {
 			s3Request.actualPath = s3Request.actualPath[1:]
-			n.children[childPath].addNode(s3Request)
+			n.Children[childPath].addNode(s3Request)
 			return
 		}
 	}
@@ -58,9 +58,9 @@ func (n *Node) addNode(s3Request *apiRequest) {
 		Name:     dirName,
 		Path:     path,
 		Type:     "Directory",
-		children: make(map[string]*Node),
+		Children: make(map[string]*Node),
 	}
-	n.children[dirName] = dirNode
+	n.Children[dirName] = dirNode
 	s3Request.actualPath = s3Request.actualPath[1:]
 	dirNode.addNode(s3Request)
 }
