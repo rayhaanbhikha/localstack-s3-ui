@@ -18,7 +18,7 @@ func resourceHandler(rootNode *s3.Node) http.Handler {
 		node, ok := rootNode.GetNode(resourcePath)
 		// TODO: node may not be a child node.
 		if !ok {
-			http.NotFound(w, r)
+			http.Redirect(w, r, "/", 404)
 			return
 		}
 		decoded, err := base64.StdEncoding.DecodeString(node.Data)

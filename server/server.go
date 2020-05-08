@@ -6,11 +6,46 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
+
+type spaHandler struct {
+	resourceHandler http.Handler
+	staticPath      string
+	indexPath       string
+}
+
+func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path, err := filepath.Abs(r.URL.Path)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// render index.html
+	if path == "/" || path == "/s3" {
+		http.ServeFile(w, r, "./build/index.html")
+		return
+	}
+
+	path = filepath.Join(h.staticPath, path)
+
+	_, err = os.Stat(path)
+	if os.IsNotExist(err) {
+		// attempt to return s3 resource.
+		h.resourceHandler.ServeHTTP(w, r)
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
+}
 
 func startServer(rootNode *s3.Node) {
 
@@ -19,9 +54,8 @@ func startServer(rootNode *s3.Node) {
 		Handler(http.StripPrefix("/api/resource", resourcesHandler(rootNode))).
 		Methods("GET")
 
-	r.PathPrefix("/").
-		Handler(resourceHandler(rootNode)).
-		Methods("GET")
+	spa := spaHandler{staticPath: "build", indexPath: "index.html", resourceHandler: resourceHandler(rootNode)}
+	r.PathPrefix("/").Handler(spa)
 
 	// TODO: use os.GetEnv to retieve PORT.
 	server := &http.Server{

@@ -13,7 +13,7 @@ const Component = ({ resource, fetchResources }) => {
 
   const onClickHandler = () => {
     if (resource.type === "File") {
-      window.location.href = joinPath(config.host, resource.path)
+      window.location.href = joinPath(config.host, resource.path, "/")
     }
     fetchResources(resource.path)
   }
