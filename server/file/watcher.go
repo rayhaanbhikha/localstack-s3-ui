@@ -1,13 +1,13 @@
-package main
+package file
 
 import (
 	"log"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
 
-func startFileWatcher(fileName string, rootNode *s3.Node) (*fsnotify.Watcher, error) {
+// Watch ... watches file for any write changes.
+func Watch(filePath string, handleOnWrite func()) (*fsnotify.Watcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func startFileWatcher(fileName string, rootNode *s3.Node) (*fsnotify.Watcher, er
 				log.Println("event:", event)
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					log.Println("modified file:", event.Name)
-					rootNode.LoadData(fileName)
+					handleOnWrite()
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -34,7 +34,7 @@ func startFileWatcher(fileName string, rootNode *s3.Node) (*fsnotify.Watcher, er
 		}
 	}()
 
-	err = watcher.Add(fileName)
+	err = watcher.Add(filePath)
 	if err != nil {
 		return nil, err
 	}

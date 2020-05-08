@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/rayhaanbhikha/localstack-s3-ui/file"
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 	"github.com/rayhaanbhikha/localstack-s3-ui/utils"
 )
@@ -17,7 +18,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	watcher, err := startFileWatcher(filePath, rootNode)
+	watcher, err := file.Watch(filePath, func() {
+		rootNode.LoadData(filePath)
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
