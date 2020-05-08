@@ -1,19 +1,24 @@
 import React from 'react'
+import { withRouter } from 'react-router-dom'
+
 import { ReactComponent as FileIcon } from './file.svg'
 import { ReactComponent as FolderIcon } from './folder.svg'
 import { ReactComponent as BucketIcon } from './bucket.svg'
 
 import './styles.css'
-import { withRouter } from 'react-router-dom'
+import { joinPath } from '../../utils'
 
 const Component = ({ resource, fetchResources }) => {
-  return <tr>
-    <td onClick={() => {
-      if (resource.type === "File") {
-        window.location.href = `http://localhost:8080/page?path=${resource.path}`
-      }
-      fetchResources(resource.path)
-    }}>
+
+  const onClickHandler = () => {
+    if (resource.type === "File") {
+      window.location.href = joinPath('http://localhost:8080', resource.path)
+    }
+    fetchResources(resource.path)
+  }
+
+  return <tr className="resource-row" onClick={onClickHandler}>
+    <td >
       <div className="resource">
         { resource.type === "Bucket" && <BucketIcon className="icon"/>}
         { resource.type === "Directory" && <FolderIcon className="icon"/>}

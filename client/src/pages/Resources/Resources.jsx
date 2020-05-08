@@ -1,44 +1,31 @@
 import React, { useEffect, useState } from 'react'
 import { WrapTable, ResourceRow, BreadCrums } from '../../Components'
 import { withRouter } from 'react-router-dom'
+import { joinPath } from '../../utils'
 
-export const Component = ({ history }) => {
+const apiURL = `http://localhost:8080/api/resource/`;
 
-    const [state, setState] = useState({
-        path: "/",
-        name: "localstack S3",
-        type: "Root",
-        breadcrums: [],
+// TODO: need a linter. 
+export const Resources = () => {
+
+    const [state, setstate] = useState({
+        path: "",
         resources: []
     })
 
-    const fetchResources = async (path = "/") => {
+    const fetchResources = async (resourcePath) => {
         try {
-            const res = await fetch(`http://localhost:8080/resource?path=${path}`)
+            const resourcesURL = resourcePath ? joinPath(apiURL, resourcePath) : apiURL
+            console.log(resourcesURL)
+            const res = await fetch(resourcesURL);
             const data = await res.json();
-            setState(prevState => ({
-                ...prevState,
-                name: data.name,
+            console.log(data);
+            setstate({
                 path: data.path,
-                breadcrums: data.path.split("/").reduce((acc, pathSegment, index) => {
-                    const n = acc.length
-                    let breadCrum = {}
-                    if (index === 0) {
-                        breadCrum = {
-                            label: "LocalStack S3",
-                            url: "/"
-                        }
-                    } else {
-                        breadCrum = {
-                            label: pathSegment,
-                            url: n > 1 ? acc[n - 1].url + "/" + pathSegment : "/" + pathSegment,
-                        }
-                    }
-                    return [...acc, breadCrum]
-                }, []),
+                name: data.name,
                 type: data.type,
                 resources: data.children || []
-            }))
+            })
         } catch (error) {
             console.log(error)
         }
@@ -48,17 +35,21 @@ export const Component = ({ history }) => {
         fetchResources();
     }, [])
 
-    const TableText = () => <>
-        <BreadCrums breadcrums={state.breadcrums} fetchResources={fetchResources} />
-        {state.type === "Root" ?
-            <>
+    const TableText = () => {
+        if (state.name === "Root") {
+            return <>
                 <strong className="table-bucket-text">Buckets</strong>
-            &nbsp;&nbsp;
+                &nbsp;&nbsp;
                 <strong className="table-bucket-nums">({state.resources.length})</strong>
             </>
-            :
-            <strong className="table-bucket-text">{state.name}</strong>
+        } else {
+            return <strong className="table-bucket-text">{state.name}</strong>
         }
+    }
+
+    const TableHead = () => <>
+        <BreadCrums path={state.path} fetchResources={fetchResources}/>
+        <TableText />
     </>
 
     const TableBody = () =>
@@ -66,6 +57,5 @@ export const Component = ({ history }) => {
             <ResourceRow key={`bucketName-${index}`} resource={resource} fetchResources={fetchResources} />
         );
 
-    return WrapTable(TableText, TableBody)
+    return WrapTable(TableHead, TableBody)
 }
-export const Resources = withRouter(Component)
