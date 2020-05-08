@@ -1,65 +1,6 @@
 package s3
 
-import (
-	"fmt"
-)
-
-// Node ...
-type Node struct {
-	Name       string `json:"name"`
-	bucketName string
-	Path       string     `json:"path"`
-	Type       string     `json:"type"`
-	Data       string     `json:"-"`
-	Headers    ReqHeaders `json:"h"`
-	children   map[string]*Node
-}
-
-func (n *Node) String() string {
-	return fmt.Sprintf(`
-	Name: %s
-	Type: %s
-	Path: %s
-	Data: %s
-`, n.Name, n.Type, n.Path, n.Data)
-}
-
-// Print ... node tree.
-func (n *Node) Print() {
-	fmt.Println(n)
-	if len(n.children) > 0 {
-		for _, childNode := range n.children {
-			childNode.Print()
-		}
-	}
-}
-
-func (n *Node) getNode(path string) (*Node, bool) {
-	if n.Path == path {
-		return n, true
-	}
-
-	for _, childNode := range n.children {
-		if v, ok := childNode.getNode(path); ok {
-			return v, ok
-		}
-	}
-	return nil, false
-}
-
-func (n *Node) deleteNode(s3Request *apiRequest) {
-	pathLen := len(s3Request.actualPath) - 1
-	keyToDel := s3Request.actualPath[pathLen]
-
-	if _, ok := n.children[keyToDel]; ok {
-		delete(n.children, keyToDel)
-		return
-	}
-
-	for key := range n.children {
-		n.children[key].deleteNode(s3Request)
-	}
-}
+import "fmt"
 
 func (n *Node) addNode(s3Request *apiRequest) {
 	if n.Name == "Root" && len(s3Request.actualPath) == 1 {
