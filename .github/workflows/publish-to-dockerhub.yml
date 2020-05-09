@@ -14,6 +14,7 @@ jobs:
       - name: Build React app
         run: |
           cd client
+          yarn install
           yarn build
       - name: Move the build folder.
         run: |
