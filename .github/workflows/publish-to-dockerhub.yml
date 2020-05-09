@@ -18,7 +18,7 @@ jobs:
           yarn build
       - name: Move the build folder.
         run: |
-          cp -r ./build ./server
+          cp -r ./client/build ./server
       - name: Build docker image
         env:
           RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
