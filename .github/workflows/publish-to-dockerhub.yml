@@ -26,3 +26,4 @@ jobs:
           cd server
           docker build -t localstack-s3-ui:$RELEASE_VERSION .
           docker images
+          echo $TEST_SECRET
