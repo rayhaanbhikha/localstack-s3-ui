@@ -25,7 +25,8 @@ jobs:
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
         run: |
           cd server
-          echo $DOCKER_HUB_ACCESS_TOKEN >> docker login https://docker.pkg.github.com -u gosuper --password-stdin
+          echo $DOCKER_HUB_ACCESS_TOKEN > token.txt
+          cat ./token.txt | docker login https://docker.pkg.github.com -u gosuper --password-stdin
           docker build -t localstack-s3-ui:$RELEASE_VERSION .
           docker tag localstack-s3-ui:$RELEASE_VERSION gosuper/localstack-s3-ui:$RELEASE_VERSION
           docker push gosuper/localstack-s3-ui:$RELEASE_VERSION
