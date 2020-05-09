@@ -25,7 +25,10 @@ jobs:
           TEST_SECRET: ${{ secrets.TEST_SECRET }}
         run: |
           cd server
+          docker login -u gouser -p $TEST_SECRET
           docker build -t localstack-s3-ui:$RELEASE_VERSION .
           docker images
-          echo "test secret"
-          echo $TEST_SECRET
+          docker tag localstack-s3-ui:$RELEASE_VERSION gosuper/localstack-s3-ui:$RELEASE_VERSION
+          docker tag localstack-s3-ui:$RELEASE_VERSION gosuper/localstack-s3-ui:latest
+          docker push gosuper/localstack-s3-ui:$RELEASE_VERSION
+          docker push gosuper/localstack-s3-ui:latest
