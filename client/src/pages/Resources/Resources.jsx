@@ -3,6 +3,16 @@ import { WrapTable, ResourceRow, BreadCrums } from '../../Components'
 import { joinPath } from '../../utils'
 import { config } from '../../config'
 
+const dirSort = (a, b) => {
+    if (a.type === "File" && b.type === "Directory") {
+        return 1
+    } else if (a.type === "Directory" && b.type === "File") {
+        return -1
+    } else {
+        return 0
+    }
+}
+
 // TODO: need a linter. 
 export const Resources = () => {
     const [state, setstate] = useState({
@@ -15,11 +25,12 @@ export const Resources = () => {
             const resourcesURL = joinPath(config.apiUrl, resourcePath)
             const res = await fetch(resourcesURL);
             const data = await res.json();
+            const resources = data.children && data.children.length > 0 ? data.children.sort(dirSort) : []
             setstate({
                 path: data.path,
                 name: data.name,
                 type: data.type,
-                resources: data.children || []
+                resources,
             })
         } catch (error) {
             console.log(error)
