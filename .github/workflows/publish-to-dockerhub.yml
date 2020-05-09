@@ -22,8 +22,10 @@ jobs:
       - name: Build docker image
         env:
           RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+          TEST_SECRET: ${{ secrets.TEST_SECRET }}
         run: |
           cd server
           docker build -t localstack-s3-ui:$RELEASE_VERSION .
           docker images
+          echo "test secret"
           echo $TEST_SECRET
