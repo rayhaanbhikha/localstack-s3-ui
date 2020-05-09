@@ -16,7 +16,7 @@ jobs:
           cd client
           yarn install
           yarn build
-      - name: Move the build folder.
+      - name: Copy build folder into server.
         run: |
           cp -r ./client/build ./server
       - name: Build docker image
@@ -27,8 +27,7 @@ jobs:
           cd server
           docker login -u gosuper -p $DOCKER_HUB_ACCESS_TOKEN
           docker build -t localstack-s3-ui:$RELEASE_VERSION .
-          docker images
           docker tag localstack-s3-ui:$RELEASE_VERSION gosuper/localstack-s3-ui:$RELEASE_VERSION
-          docker tag localstack-s3-ui:$RELEASE_VERSION gosuper/localstack-s3-ui:latest
           docker push gosuper/localstack-s3-ui:$RELEASE_VERSION
+          docker tag localstack-s3-ui:$RELEASE_VERSION gosuper/localstack-s3-ui:latest
           docker push gosuper/localstack-s3-ui:latest
