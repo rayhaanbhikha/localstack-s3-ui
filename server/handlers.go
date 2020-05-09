@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/rayhaanbhikha/localstack-s3-ui/s3"
 )
@@ -70,4 +72,38 @@ func resourcesHandler(rootNode *s3.Node) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(data)
 	})
+}
+
+type spaHandler struct {
+	resourceHandler http.Handler
+	staticPath      string
+	indexPath       string
+}
+
+func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path, err := filepath.Abs(r.URL.Path)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// render index.html
+	if path == "/" || path == "/s3" {
+		http.ServeFile(w, r, "./build/index.html")
+		return
+	}
+
+	path = filepath.Join(h.staticPath, path)
+
+	_, err = os.Stat(path)
+	if os.IsNotExist(err) {
+		// attempt to return s3 resource.
+		h.resourceHandler.ServeHTTP(w, r)
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
 }
