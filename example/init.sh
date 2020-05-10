@@ -1,6 +1,6 @@
 #!/bin/bash
 
-which aw
+which aws
 
 state=$?
 if [ $state -ne 0 ]
