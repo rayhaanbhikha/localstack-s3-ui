@@ -24,11 +24,12 @@ jobs:
           RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
         run: |
+          RELEASE_VERSION_NUM=${RELEASE_VERSION:1}
           cd server
           echo $DOCKER_HUB_ACCESS_TOKEN > token.txt
           cat ./token.txt | docker login -u gosuper --password-stdin
-          docker build -t localstack-s3-ui:$RELEASE_VERSION .
-          docker tag localstack-s3-ui:$RELEASE_VERSION gosuper/localstack-s3-ui:$RELEASE_VERSION
-          docker push gosuper/localstack-s3-ui:$RELEASE_VERSION
-          docker tag localstack-s3-ui:$RELEASE_VERSION gosuper/localstack-s3-ui:latest
+          docker build -t localstack-s3-ui:$RELEASE_VERSION_NUM .
+          docker tag localstack-s3-ui:$RELEASE_VERSION_NUM gosuper/localstack-s3-ui:$RELEASE_VERSION_NUM
+          docker push gosuper/localstack-s3-ui:$RELEASE_VERSION_NUM
+          docker tag localstack-s3-ui:$RELEASE_VERSION_NUM gosuper/localstack-s3-ui:latest
           docker push gosuper/localstack-s3-ui:latest
