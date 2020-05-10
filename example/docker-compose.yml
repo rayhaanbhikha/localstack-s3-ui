@@ -1,11 +1,30 @@
 version: "3.4"
+
 services:
-  localstack-s3-ui:
-    image: gosuper/localstack-s3-ui:0.0.1
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - "4566-4599:4566-4599"
+      - "8080:8080"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - USE_LIGHT_IMAGE=1
+      - DATA_DIR=/tmp/localstack/data
+      - PORT_WEB_UI=8080
+      - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
-      - ./recorded_api_calls.json:/var/recorded_api_calls.json:ro
+      - "./.localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  localstack-s3-ui:
+    container_name: localstack-s3-ui
+    depends_on: [localstack]
+    image: localstack-s3-ui:0.0.4
     ports:
       - 9000:9000
-    environment: 
-      - FILE_PATH=/var/recorded_api_calls.json
+    environment:
+      - API_REQ_FILE_PATH=/tmp/localstack/data/recorded_api_calls.json
       - PORT=9000
+    volumes:
+      - "./.localstack:/tmp/localstack"
