@@ -7,6 +7,7 @@ type Node struct {
 	Name       string `json:"name"`
 	bucketName string
 	Path       string           `json:"path"`
+	ResPath    string           `json:"resourcePath"`
 	Type       string           `json:"type"`
 	Data       string           `json:"-"`
 	Headers    ReqHeaders       `json:"h"`
@@ -53,6 +54,20 @@ func (n *Node) LoadData(filePath string) error {
 		}
 	}
 	return nil
+}
+
+// GetResourceNode ... returns resource node at given path.
+func (n *Node) GetResourceNode(resourcePath string) (*Node, bool) {
+	if n.ResPath == resourcePath {
+		return n, true
+	}
+
+	for _, childNode := range n.Children {
+		if v, ok := childNode.GetResourceNode(resourcePath); ok {
+			return v, ok
+		}
+	}
+	return nil, false
 }
 
 // GetNode ... returns node at given path.

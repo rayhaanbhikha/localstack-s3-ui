@@ -8,6 +8,7 @@ import (
 
 // Watch ... watches file for any write changes.
 func Watch(filePath string, handleOnWrite func()) (*fsnotify.Watcher, error) {
+	// TODO: need to check if the file exists.
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err

@@ -17,7 +17,7 @@ func resourceHandler(rootNode *s3.Node) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		resourcePath := path.Clean(r.URL.EscapedPath())
 		log.Println("Resource: ", resourcePath)
-		node, ok := rootNode.GetNode(resourcePath)
+		node, ok := rootNode.GetResourceNode(resourcePath)
 		// TODO: node may not be a child node.
 		if !ok {
 			http.Redirect(w, r, "/", 404)
@@ -98,6 +98,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	_, err = os.Stat(path)
 	if os.IsNotExist(err) {
+		log.Println("looking for: ", path)
 		// attempt to return s3 resource.
 		h.resourceHandler.ServeHTTP(w, r)
 		return

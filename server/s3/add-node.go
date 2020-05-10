@@ -1,6 +1,8 @@
 package s3
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (n *Node) addNode(s3Request *apiRequest) {
 	if n.Name == "Root" && len(s3Request.actualPath) == 1 {
@@ -26,6 +28,7 @@ func (n *Node) addNode(s3Request *apiRequest) {
 				Name:       fileName,
 				Type:       "File",
 				Path:       fmt.Sprintf("%s/%s", n.Path, fileName),
+				ResPath:    fmt.Sprintf("%s/%s", n.ResPath, fileName),
 				Data:       s3Request.Data,
 				Headers:    s3Request.Headers,
 				Children:   make(map[string]*Node),
@@ -49,14 +52,18 @@ func (n *Node) addNode(s3Request *apiRequest) {
 	// create file node.
 	dirName := s3Request.actualPath[0]
 	var path string
+	var resPath string
 	if n.Path == "/" {
 		path = fmt.Sprintf("/%s", dirName)
+		resPath = fmt.Sprintf("/%s", dirName)
 	} else {
 		path = fmt.Sprintf("%s/%s", n.Path, dirName)
+		resPath = fmt.Sprintf("%s/%s", n.ResPath, dirName)
 	}
 	dirNode := &Node{
 		Name:     dirName,
 		Path:     path,
+		ResPath:  resPath,
 		Type:     "Directory",
 		Children: make(map[string]*Node),
 	}

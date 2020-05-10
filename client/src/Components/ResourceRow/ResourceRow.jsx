@@ -13,7 +13,8 @@ const Component = ({ resource, fetchResources }) => {
 
   const onClickHandler = () => {
     if (resource.type === "File") {
-      window.location.href = joinPath(config.host, resource.path, "/")
+      window.location.href = joinPath(config.host, resource.resourcePath)
+      return
     }
     fetchResources(resource.path)
   }
@@ -21,9 +22,9 @@ const Component = ({ resource, fetchResources }) => {
   return <tr className="resource-row" onClick={onClickHandler}>
     <td >
       <div className="resource">
-        { resource.type === "Bucket" && <BucketIcon className="icon"/>}
-        { resource.type === "Directory" && <FolderIcon className="icon"/>}
-        { resource.type === "File" && <FileIcon className="icon"/>}
+        {resource.type === "Bucket" && <BucketIcon className="icon" />}
+        {resource.type === "Directory" && <FolderIcon className="icon" />}
+        {resource.type === "File" && <FileIcon className="icon" />}
         <div>
           {resource.name}
         </div>
