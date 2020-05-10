@@ -24,3 +24,5 @@ yarn-error.log*
 
 server/**/*.json
 *.db
+
+.localstack
