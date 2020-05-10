@@ -20,7 +20,7 @@ services:
   localstack-s3-ui:
     container_name: localstack-s3-ui
     depends_on: [localstack]
-    image: localstack-s3-ui:0.0.4
+    image: localstack-s3-ui
     ports:
       - 9000:9000
     environment:
