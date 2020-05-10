@@ -22,8 +22,8 @@ func Watch(filePath string, handleOnWrite func()) (*fsnotify.Watcher, error) {
 					return
 				}
 				log.Println("event:", event)
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					log.Println("modified file:", event.Name)
+				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
+					log.Println("Watcher event:", event.Name)
 					handleOnWrite()
 				}
 			case err, ok := <-watcher.Errors:

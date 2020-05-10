@@ -13,11 +13,6 @@ func main() {
 	filePath := utils.GetFilePath()
 	rootNode := s3.RootNode()
 
-	err := rootNode.LoadData(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	watcher, err := file.Watch(filePath, func() {
 		rootNode.LoadData(filePath)
 	})
