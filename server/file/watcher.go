@@ -22,7 +22,7 @@ func Watch(filePath string, handleOnWrite func()) (*fsnotify.Watcher, error) {
 					return
 				}
 				log.Println("event:", event)
-				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
+				if event.Op&fsnotify.Write == fsnotify.Write {
 					log.Println("Watcher event:", event.Name)
 					handleOnWrite()
 				}

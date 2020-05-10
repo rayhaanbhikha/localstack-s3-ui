@@ -13,6 +13,11 @@ func main() {
 	filePath := utils.GetFilePath()
 	rootNode := s3.RootNode()
 
+	err := rootNode.LoadData(filePath)
+	if err != nil {
+		log.Fatalf("Error loading s3 requests: %s", err.Error())
+	}
+
 	watcher, err := file.Watch(filePath, func() {
 		rootNode.LoadData(filePath)
 	})
@@ -20,5 +25,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer watcher.Close()
+
 	startServer(rootNode)
 }
