@@ -5,7 +5,7 @@ This example will start localstack and the localstack-s3-ui in seperate docker c
 ```yml
   localstack:
     container_name: localstack
-    image: localstack/localstack
+    image: localstack/localstack-full
     ports:
       - "4566-4599:4566-4599"
       - "8080:8080"
@@ -15,6 +15,7 @@ This example will start localstack and the localstack-s3-ui in seperate docker c
       - USE_LIGHT_IMAGE=1
       - DATA_DIR=/tmp/localstack/data
       - PORT_WEB_UI=8080
+      - START_WEB=1
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - "./.localstack:/tmp/localstack"
