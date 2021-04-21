@@ -22,13 +22,14 @@ This example will start localstack and the localstack-s3-ui in seperate docker c
 
   localstack-s3-ui:
     container_name: localstack-s3-ui
-    depends_on: [localstack]
+    depends_on: 
+      - localstack
     image: gosuper/localstack-s3-ui
     ports:
       - 9000:9000
     environment:
-      - API_REQ_FILE_PATH=/tmp/localstack/data/recorded_api_calls.json // Required
-      - PORT=9000 // Defaults to 9000
+      - API_REQ_FILE_PATH=/tmp/localstack/data/recorded_api_calls.json #Required
+      - PORT=9000 # Defaults to 9000
     volumes:
       - "./.localstack:/tmp/localstack"
 ```
